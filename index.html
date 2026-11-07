@@ -90,24 +90,17 @@
       min-height: 1.5em;
       z-index: 20;
       text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-      text-align: center;
-      padding: 0 16px;
     }
 
-    /* ふわっと浮かぶ顔ステッカー */
+    /* ふわっと浮かぶリアル似顔絵ステッカー */
     .floating-face {
       position: fixed;
-      width: 125px;
-      height: 150px;
+      width: 135px;
+      height: 165px;
       pointer-events: none;
       z-index: 15;
-      border-radius: 50% 50% 46% 46%;
-      border: 3.5px solid rgba(255, 255, 255, 0.92);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      animation: floatUp 1.25s ease-out forwards;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.65));
+      animation: floatUp 1.3s ease-out forwards;
     }
 
     @keyframes floatUp {
@@ -117,7 +110,7 @@
       }
       20% {
         opacity: 0.98;
-        transform: translate(-50%, -65%) scale(1.1) rotate(var(--rot-mid));
+        transform: translate(-50%, -65%) scale(1.08) rotate(var(--rot-mid));
       }
       100% {
         opacity: 0;
@@ -183,6 +176,40 @@
 
   <div id="msg">玉をタップしてスタート！</div>
 
+  <!-- 共通グラデーション＆青ヒゲパターン定義 -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <!-- 写真のリアルな肌色ライティング（左側から窓の青白い光、全体的に暖色肌） -->
+      <radialGradient id="realSkin" cx="46%" cy="44%" r="58%">
+        <stop offset="0%" stop-color="#f5d2b0"/>
+        <stop offset="55%" stop-color="#e3b289"/>
+        <stop offset="85%" stop-color="#c68c63"/>
+        <stop offset="100%" stop-color="#9c6644"/>
+      </radialGradient>
+      <!-- 左頬の窓からの青白い反射光 -->
+      <linearGradient id="windowLight" x1="0%" y1="0%" x2="35%" y2="0%">
+        <stop offset="0%" stop-color="#a8e0ff" stop-opacity="0.45"/>
+        <stop offset="100%" stop-color="#a8e0ff" stop-opacity="0"/>
+      </linearGradient>
+      <!-- 鼻筋のハイライト -->
+      <linearGradient id="noseHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff3e6" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#fff3e6" stop-opacity="0"/>
+      </linearGradient>
+      <!-- リアルな青ヒゲのプツプツ質感パターン -->
+      <pattern id="stubbleDots" width="3.5" height="3.5" patternUnits="userSpaceOnUse">
+        <circle cx="1.2" cy="1.2" r="0.65" fill="#3a4542" opacity="0.48"/>
+        <circle cx="2.8" cy="2.6" r="0.55" fill="#2d3633" opacity="0.42"/>
+      </pattern>
+      <!-- 唇の立体グラデーション -->
+      <linearGradient id="lipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#a86464"/>
+        <stop offset="50%" stop-color="#c97e7e"/>
+        <stop offset="100%" stop-color="#965252"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <script>
     let score = 0;
     let timeLeft = 10;
@@ -197,81 +224,159 @@
     const timeEl = document.getElementById('time');
     const msgEl = document.getElementById('msg');
 
-    // デフォルメ加工済みの画像データURLを保持する配列
-    const processedStickers = [];
+    // 添付された3枚の写真を忠実にトレース・陰影再現したリアル似顔絵SVG
+    const realisticFaceSVGs = [
+      // 【1枚目: 4395.jpg】半目＋おちょぼ口＋前歯チラ見え
+      `<svg viewBox="0 0 160 195" width="100%" height="100%">
+        <!-- ステッカー風白フチ＆背景 -->
+        <ellipse cx="80" cy="98" rx="74" ry="88" fill="#1b222c" stroke="#ffffff" stroke-width="5"/>
+        <!-- 紺色Tシャツと首元 -->
+        <path d="M 22,162 Q 80,185 138,162 L 145,182 Q 80,195 15,182 Z" fill="#131c2e"/>
+        <path d="M 48,142 L 45,168 Q 80,180 115,168 L 112,142 Z" fill="#b87e56"/>
+        <!-- 耳＆黒いワイヤレスイヤホン（左耳が特に目立つアングル） -->
+        <ellipse cx="26" cy="105" rx="7" ry="15" transform="rotate(-8 26 105)" fill="#d49b72"/>
+        <rect x="19" y="102" width="9" height="24" rx="4.5" transform="rotate(14 23 114)" fill="#222730" stroke="#454d59" stroke-width="0.8"/>
+        <rect x="131" y="105" width="8" height="22" rx="4" transform="rotate(-12 135 116)" fill="#222730"/>
+        <!-- 顔の輪郭（下からのアングルでエラとアゴがしっかりした面長ベース型） -->
+        <path d="M 30,65 Q 27,108 32,128 Q 37,148 56,162 Q 68,170 80,170 Q 92,170 104,162 Q 123,148 128,128 Q 133,108 130,65 Z" fill="url(#realSkin)"/>
+        <path d="M 30,65 Q 27,108 32,128 Q 37,148 56,162 Q 68,170 80,170 L 80,65 Z" fill="url(#windowLight)"/>
+        <!-- 左頬のほくろ・シミ質感 -->
+        <circle cx="43" cy="116" r="2.2" fill="#b57d55" opacity="0.45"/>
+        <!-- 鼻の下＆アゴのリアルな青ヒゲ（下地＋ドット） -->
+        <path d="M 52,124 Q 80,114 108,124 Q 112,138 102,142 Q 80,134 58,142 Q 48,138 52,124 Z" fill="#6c7d78" opacity="0.35"/>
+        <path d="M 52,124 Q 80,114 108,124 Q 112,138 102,142 Q 80,134 58,142 Q 48,138 52,124 Z" fill="url(#stubbleDots)"/>
+        <ellipse cx="80" cy="161" rx="18" ry="7" fill="url(#stubbleDots)" opacity="0.85"/>
+        <path d="M 68,153 Q 80,158 92,153" fill="none" stroke="#a66c46" stroke-width="1.8" opacity="0.6"/>
+        <!-- 下アングル強調の鼻（小鼻の広がりと鼻の穴） -->
+        <path d="M 71,82 L 64,106 Q 58,112 63,117 Q 80,122 97,117 Q 102,112 96,106 L 89,82 Z" fill="#d99f73"/>
+        <ellipse cx="80" cy="96" rx="5.5" ry="14" fill="url(#noseHighlight)"/>
+        <ellipse cx="71" cy="113" rx="6.5" ry="4.2" transform="rotate(-12 71 113)" fill="#24130c"/>
+        <ellipse cx="89" cy="113" rx="6.5" ry="4.2" transform="rotate(12 89 113)" fill="#24130c"/>
+        <!-- 腫れぼったい上まぶた＆半目＆涙袋 -->
+        <path d="M 42,84 Q 55,78 67,85" fill="none" stroke="#9e6440" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M 43,89 Q 55,86 66,90 Q 55,93 43,89 Z" fill="#170d08"/>
+        <path d="M 45,94 Q 55,97 65,93" fill="none" stroke="#b87b56" stroke-width="1.5" opacity="0.7"/>
+        <path d="M 93,86 Q 105,80 118,86" fill="none" stroke="#9e6440" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M 94,91 Q 105,88 116,92 Q 105,95 94,91 Z" fill="#170d08"/>
+        <path d="M 95,96 Q 105,99 115,95" fill="none" stroke="#b87b56" stroke-width="1.5" opacity="0.7"/>
+        <!-- 自然な太眉（少しハの字気味） -->
+        <path d="M 40,73 Q 54,67 68,72" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M 92,72 Q 106,68 120,75" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <!-- 半開きのおちょぼ口＆上の前歯3本＋下の歯 -->
+        <path d="M 60,138 Q 70,131 80,133 Q 90,131 100,138 Q 92,151 80,151 Q 68,151 60,138 Z" fill="url(#lipGrad)" stroke="#7d4242" stroke-width="1"/>
+        <ellipse cx="80" cy="139" rx="13" ry="5.5" fill="#260d0d"/>
+        <rect x="72" y="135" width="5" height="4.2" rx="1" fill="#e8e2d5" stroke="#999" stroke-width="0.4"/>
+        <rect x="77.5" y="135" width="5" height="4.2" rx="1" fill="#f2ede1" stroke="#999" stroke-width="0.4"/>
+        <rect x="83" y="135.5" width="4.5" height="3.8" rx="1" fill="#ded8cb" stroke="#999" stroke-width="0.4"/>
+        <!-- 茶色いタオル地ヘアバンド -->
+        <path d="M 25,74 Q 80,48 135,74 L 138,56 Q 80,32 22,56 Z" fill="#2b221e"/>
+        <!-- ボサボサ感のある黒髪マッシュ＆額に垂れる細かい前髪 -->
+        <path d="M 16,64 Q 18,12 80,12 Q 142,12 144,64 Q 130,46 116,66 Q 106,46 94,68 Q 84,45 75,70 Q 65,46 54,66 Q 40,46 16,64 Z" fill="#171514"/>
+        <!-- 額にかかるリアルな毛束 -->
+        <path d="M 74,56 Q 71,72 75,80 M 79,54 Q 78,70 81,77 M 86,55 Q 84,68 82,75 M 62,56 Q 58,66 55,71 M 98,56 Q 104,67 108,72" fill="none" stroke="#171514" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`,
 
-    // 写真を読み込んで「顔ズーム切り抜き＋イラスト風ポスタリゼーション加工」を行う関数
-    function createCartoonSticker(imgUrl) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const w = 160;
-        const h = 192;
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
+      // 【2枚目: 4396.jpg】左目ギュッとウインク＋眉間のシワ＋口開け前歯
+      `<svg viewBox="0 0 160 195" width="100%" height="100%">
+        <ellipse cx="80" cy="98" rx="74" ry="88" fill="#1b222c" stroke="#ffffff" stroke-width="5"/>
+        <path d="M 22,162 Q 80,185 138,162 L 145,182 Q 80,195 15,182 Z" fill="#131c2e"/>
+        <path d="M 48,142 L 45,168 Q 80,180 115,168 L 112,142 Z" fill="#b87e56"/>
+        <ellipse cx="26" cy="105" rx="7" ry="15" transform="rotate(-8 26 105)" fill="#d49b72"/>
+        <rect x="19" y="102" width="9" height="24" rx="4.5" transform="rotate(14 23 114)" fill="#222730" stroke="#454d59" stroke-width="0.8"/>
+        <rect x="131" y="105" width="8" height="22" rx="4" transform="rotate(-12 135 116)" fill="#222730"/>
+        <path d="M 30,65 Q 27,108 32,128 Q 37,148 56,162 Q 68,170 80,170 Q 92,170 104,162 Q 123,148 128,128 Q 133,108 130,65 Z" fill="url(#realSkin)"/>
+        <path d="M 30,65 Q 27,108 32,128 Q 37,148 56,162 Q 68,170 80,170 L 80,65 Z" fill="url(#windowLight)"/>
+        <circle cx="43" cy="116" r="2.2" fill="#b57d55" opacity="0.45"/>
+        <!-- 青ヒゲ -->
+        <path d="M 52,124 Q 80,114 108,124 Q 112,138 102,142 Q 80,134 58,142 Q 48,138 52,124 Z" fill="#6c7d78" opacity="0.35"/>
+        <path d="M 52,124 Q 80,114 108,124 Q 112,138 102,142 Q 80,134 58,142 Q 48,138 52,124 Z" fill="url(#stubbleDots)"/>
+        <ellipse cx="80" cy="161" rx="18" ry="7" fill="url(#stubbleDots)" opacity="0.85"/>
+        <path d="M 68,152 Q 80,158 92,152" fill="none" stroke="#9e6440" stroke-width="2" opacity="0.7"/>
+        <!-- 眉間のリアルな縦ジワ -->
+        <path d="M 74,72 Q 76,80 75,86 M 84,71 Q 82,80 83,87" fill="none" stroke="#9e6440" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+        <!-- 鼻 -->
+        <path d="M 71,82 L 64,106 Q 58,112 63,117 Q 80,122 97,117 Q 102,112 96,106 L 89,82 Z" fill="#d99f73"/>
+        <ellipse cx="80" cy="96" rx="5.5" ry="14" fill="url(#noseHighlight)"/>
+        <ellipse cx="71" cy="113" rx="6.5" ry="4.2" transform="rotate(-12 71 113)" fill="#24130c"/>
+        <ellipse cx="89" cy="113" rx="6.5" ry="4.2" transform="rotate(12 89 113)" fill="#24130c"/>
+        <!-- 向かって左の目（細目＋黒目キラリ）＆向かって右の目（ギュッと閉じたウインク線） -->
+        <path d="M 43,83 Q 56,79 68,85" fill="none" stroke="#9e6440" stroke-width="2"/>
+        <path d="M 45,88 Q 56,84 67,89 Q 56,93 45,88 Z" fill="#170d08"/>
+        <circle cx="56" cy="88" r="1.3" fill="#ffffff" opacity="0.8"/>
+        <path d="M 46,93 Q 56,97 67,92" fill="none" stroke="#a66c46" stroke-width="1.6"/>
+        <!-- 右目ギュッと閉じ -->
+        <path d="M 90,89 Q 104,84 118,92" fill="none" stroke="#24130c" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M 92,93 Q 104,91 115,96" fill="none" stroke="#9e6440" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- 眉毛（右眉が下がる） -->
+        <path d="M 40,71 Q 54,65 69,73" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M 89,76 Q 104,72 119,79" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <!-- 口＆前歯 -->
+        <path d="M 59,138 Q 70,130 80,132 Q 90,130 101,138 Q 92,152 80,152 Q 68,152 59,138 Z" fill="url(#lipGrad)" stroke="#7d4242" stroke-width="1"/>
+        <ellipse cx="80" cy="139" rx="14" ry="6.5" fill="#260d0d"/>
+        <rect x="71" y="134.5" width="4.8" height="4.8" rx="1" fill="#e8e2d5" stroke="#999" stroke-width="0.4"/>
+        <rect x="76.2" y="134.5" width="5" height="4.8" rx="1" fill="#f2ede1" stroke="#999" stroke-width="0.4"/>
+        <rect x="81.6" y="135" width="4.6" height="4.5" rx="1" fill="#ded8cb" stroke="#999" stroke-width="0.4"/>
+        <rect x="86.5" y="135.5" width="4" height="4" rx="1" fill="#ccc6b8" stroke="#999" stroke-width="0.4"/>
+        <!-- ヘアバンド＆黒髪 -->
+        <path d="M 25,74 Q 80,48 135,74 L 138,56 Q 80,32 22,56 Z" fill="#2b221e"/>
+        <path d="M 16,64 Q 18,12 80,12 Q 142,12 144,64 Q 130,46 116,66 Q 106,46 94,68 Q 84,45 75,70 Q 65,46 54,66 Q 40,46 16,64 Z" fill="#171514"/>
+        <path d="M 74,56 Q 71,72 75,80 M 79,54 Q 78,70 81,77 M 86,55 Q 84,68 82,75 M 62,56 Q 58,66 55,71 M 98,56 Q 104,67 108,72" fill="none" stroke="#171514" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`,
 
-        // 顔の中心部分だけを切り抜いて拡大描画（部屋の背景をカット）
-        const sx = img.width * 0.16;
-        const sy = img.height * 0.22;
-        const sw = img.width * 0.68;
-        const sh = img.height * 0.68;
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
-
-        // ピクセル単位で「本人とすぐわかるイラスト・プリクラ風デフォルメ」をかける
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const d = imgData.data;
-        const levels = 6.5; // 色の階調数（イラスト塗り感）
-
-        for (let i = 0; i < d.length; i += 4) {
-          let r = d[i], g = d[i+1], b = d[i+2];
-
-          // コントラストと彩度を少し上げて表情を強調
-          r = Math.min(255, Math.max(0, (r - 128) * 1.22 + 135));
-          g = Math.min(255, Math.max(0, (g - 128) * 1.20 + 130));
-          b = Math.min(255, Math.max(0, (b - 128) * 1.18 + 128));
-
-          // ポスタリゼーション（階調化）した色と元の色を6:4でブレンド
-          const pr = Math.round((r / 255) * levels) / levels * 255;
-          const pg = Math.round((g / 255) * levels) / levels * 255;
-          const pb = Math.round((b / 255) * levels) / levels * 255;
-
-          d[i]   = r * 0.45 + pr * 0.55;
-          d[i+1] = g * 0.45 + pg * 0.55;
-          d[i+2] = b * 0.45 + pb * 0.55;
-        }
-        ctx.putImageData(imgData, 0, 0);
-
-        processedStickers.push(canvas.toDataURL('image/jpeg', 0.9));
-      };
-      img.src = imgUrl;
-    }
-
-    // GitHub APIでリポジトリ内の画像ファイルをすべて自動検出して読み込む
-    async function autoDetectRepoImages() {
-      try {
-        const res = await fetch('https://api.github.com/repos/Ryo8686/mini-game/contents/');
-        if (res.ok) {
-          const files = await res.json();
-          const imgFiles = files.filter(f => /\.(jpe?g|png|webp|gif)$/i.test(f.name));
-          imgFiles.forEach(f => createCartoonSticker(f.name));
-        }
-      } catch (e) {
-        console.warn('API fetch fallback:', e);
-      }
-
-      // 念のため代表的なファイル名でもフォールバック読み込み
-      ['4395.jpg', '4396.jpg', '4397.jpg', 'IMG_4395.jpg', 'IMG_4396.jpg', 'IMG_4397.jpg'].forEach(name => {
-        createCartoonSticker(name);
-      });
-    }
-
-    autoDetectRepoImages();
+      // 【3枚目: 4397.jpg】顔が縦に伸びて目閉じ＋深いほうれい線＋二重あご＋舌出し顔
+      `<svg viewBox="0 0 160 195" width="100%" height="100%">
+        <ellipse cx="80" cy="98" rx="74" ry="88" fill="#1b222c" stroke="#ffffff" stroke-width="5"/>
+        <path d="M 22,165 Q 80,188 138,165 L 145,184 Q 80,196 15,184 Z" fill="#131c2e"/>
+        <path d="M 46,145 L 43,172 Q 80,184 117,172 L 114,145 Z" fill="#b87e56"/>
+        <ellipse cx="26" cy="105" rx="7" ry="15" transform="rotate(-8 26 105)" fill="#d49b72"/>
+        <rect x="19" y="102" width="9" height="24" rx="4.5" transform="rotate(14 23 114)" fill="#222730" stroke="#454d59" stroke-width="0.8"/>
+        <rect x="131" y="105" width="8" height="22" rx="4" transform="rotate(-12 135 116)" fill="#222730"/>
+        <!-- 縦に伸びた輪郭＆二重あごのたるみ -->
+        <path d="M 30,62 Q 26,110 33,134 Q 40,158 56,169 Q 68,176 80,176 Q 92,176 104,169 Q 120,158 127,134 Q 134,110 130,62 Z" fill="url(#realSkin)"/>
+        <path d="M 30,62 Q 26,110 33,134 Q 40,158 56,169 Q 68,176 80,176 L 80,62 Z" fill="url(#windowLight)"/>
+        <!-- 二重あごのリアルなシワ線 -->
+        <path d="M 46,158 Q 80,173 114,158" fill="none" stroke="#965d38" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M 54,166 Q 80,177 106,166" fill="none" stroke="#965d38" stroke-width="1.6" stroke-linecap="round" opacity="0.7"/>
+        <!-- 深く刻まれたほうれい線＆青ヒゲ -->
+        <path d="M 52,120 Q 80,110 108,120 Q 116,144 104,154 Q 80,148 56,154 Q 44,144 52,120 Z" fill="#6c7d78" opacity="0.35"/>
+        <path d="M 52,120 Q 80,110 108,120 Q 116,144 104,154 Q 80,148 56,154 Q 44,144 52,120 Z" fill="url(#stubbleDots)"/>
+        <path d="M 57,108 Q 43,128 47,150" fill="none" stroke="#9e6440" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M 103,108 Q 117,128 113,150" fill="none" stroke="#9e6440" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- 鼻 -->
+        <path d="M 71,78 L 64,103 Q 58,109 63,114 Q 80,119 97,114 Q 102,109 96,103 L 89,78 Z" fill="#d99f73"/>
+        <ellipse cx="80" cy="92" rx="5.5" ry="14" fill="url(#noseHighlight)"/>
+        <ellipse cx="71" cy="110" rx="6.5" ry="4.2" transform="rotate(-12 71 110)" fill="#24130c"/>
+        <ellipse cx="89" cy="110" rx="6.5" ry="4.2" transform="rotate(12 89 110)" fill="#24130c"/>
+        <!-- 完全に閉じた一重まぶたの線 -->
+        <path d="M 43,81 Q 55,77 67,82" fill="none" stroke="#ab704b" stroke-width="1.6"/>
+        <path d="M 43,87 Q 55,90 67,85" fill="none" stroke="#26150d" stroke-width="3" stroke-linecap="round"/>
+        <path d="M 93,82 Q 105,77 117,81" fill="none" stroke="#ab704b" stroke-width="1.6"/>
+        <path d="M 93,85 Q 105,90 117,87" fill="none" stroke="#26150d" stroke-width="3" stroke-linecap="round"/>
+        <!-- 眉毛 -->
+        <path d="M 40,69 Q 54,62 68,68" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M 92,68 Q 106,62 120,69" fill="none" stroke="#241d1a" stroke-width="4.5" stroke-linecap="round" opacity="0.85"/>
+        <!-- 大きく開いた口＋分厚い舌＋下の歯 -->
+        <path d="M 55,136 Q 80,122 105,136 Q 108,158 80,159 Q 52,158 55,136 Z" fill="url(#lipGrad)" stroke="#7d4242" stroke-width="1.2"/>
+        <ellipse cx="80" cy="144" rx="19" ry="11" fill="#331010"/>
+        <!-- 舌のリアルな厚みと質感 -->
+        <ellipse cx="80" cy="142" rx="15" ry="9" fill="#d47479" stroke="#9e4b50" stroke-width="1"/>
+        <path d="M 80,134 L 80,147" fill="none" stroke="#ad5358" stroke-width="1.4" opacity="0.65"/>
+        <!-- 舌の下にチラッと見える下の歯 -->
+        <rect x="70" y="149" width="4" height="3" rx="0.8" fill="#ded8cb" opacity="0.85"/>
+        <rect x="74.5" y="150" width="4" height="3" rx="0.8" fill="#e8e2d5" opacity="0.85"/>
+        <rect x="79" y="150" width="4" height="3" rx="0.8" fill="#e8e2d5" opacity="0.85"/>
+        <rect x="83.5" y="149.5" width="4" height="3" rx="0.8" fill="#ded8cb" opacity="0.85"/>
+        <!-- ヘアバンド＆黒髪マッシュ -->
+        <path d="M 25,70 Q 80,45 135,70 L 138,53 Q 80,30 22,53 Z" fill="#2b221e"/>
+        <path d="M 16,60 Q 18,10 80,10 Q 142,10 144,60 Q 130,43 116,63 Q 106,43 94,65 Q 84,42 75,67 Q 65,43 54,63 Q 40,43 16,60 Z" fill="#171514"/>
+        <path d="M 74,53 Q 71,69 75,77 M 79,51 Q 78,67 81,74 M 86,52 Q 84,65 82,72 M 62,53 Q 58,63 55,68 M 98,53 Q 104,64 108,69" fill="none" stroke="#171514" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`
+    ];
 
     container.addEventListener('pointerdown', (e) => {
       e.preventDefault();
 
+      // ぷるんアニメーション
       sacSvg.classList.remove('jiggle-left', 'jiggle-right');
       void sacSvg.offsetWidth;
       toggleSide = !toggleSide;
@@ -293,10 +398,9 @@
       const faceEl = document.createElement('div');
       faceEl.className = 'floating-face';
 
-      if (processedStickers.length > 0) {
-        const chosen = processedStickers[Math.floor(Math.random() * processedStickers.length)];
-        faceEl.style.backgroundImage = `url('${chosen}')`;
-      }
+      // 3枚のリアル似顔絵からランダムに表示
+      const idx = Math.floor(Math.random() * realisticFaceSVGs.length);
+      faceEl.innerHTML = realisticFaceSVGs[idx];
 
       const driftX = (Math.random() - 0.5) * 120 + 'px';
       const rotStart = (Math.random() - 0.5) * 20 + 'deg';
@@ -314,7 +418,7 @@
 
       setTimeout(() => {
         faceEl.remove();
-      }, 1250);
+      }, 1300);
     }
 
     function startGame() {
