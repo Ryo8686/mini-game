@@ -51,10 +51,8 @@
       height: 100%;
       overflow: visible;
       filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.65));
-      transition: transform 0.06s cubic-bezier(0.25, 1.5, 0.5, 1);
     }
 
-    /* タップ時のぷるんアニメーション */
     .jiggle-left {
       animation: jiggleL 0.28s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
     }
@@ -95,34 +93,59 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.6);
     }
 
-    /* ふわっと浮かぶ顔エフェクト */
+    /* ふわっと浮かぶ顔ステッカー（本人写真のイラスト風デフォルメ） */
     .floating-face {
       position: fixed;
-      width: 125px;
-      height: 150px;
+      width: 120px;
+      height: 145px;
       pointer-events: none;
       z-index: 15;
+      border-radius: 50% 50% 46% 46%; /* 顔の輪郭に合わせてタマゴ型に切り抜き */
+      border: 3.5px solid rgba(255, 255, 255, 0.9); /* ステッカー風の白フチ */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      background-size: 155%; /* 背景の部屋を消して顔だけドアップにする */
+      background-position: 50% 56%; /* 顔の中心に合わせる */
+      background-repeat: no-repeat;
+      /* イラスト・マンガ風にデフォルメするフィルタ適用 */
+      filter: url(#toon-effect) contrast(1.25) saturate(1.35) brightness(1.05);
       animation: floatUp 1.25s ease-out forwards;
-      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
     }
 
     @keyframes floatUp {
       0% {
         opacity: 0;
-        transform: translate(-50%, -30%) scale(0.5) rotate(var(--rot-start));
+        transform: translate(-50%, -30%) scale(0.45) rotate(var(--rot-start));
       }
       20% {
-        opacity: 0.96;
-        transform: translate(-50%, -65%) scale(1.08) rotate(var(--rot-mid));
+        opacity: 0.98;
+        transform: translate(-50%, -65%) scale(1.1) rotate(var(--rot-mid));
       }
       100% {
         opacity: 0;
-        transform: translate(calc(-50% + var(--drift-x)), -190%) scale(0.92) rotate(var(--rot-end));
+        transform: translate(calc(-50% + var(--drift-x)), -195%) scale(0.95) rotate(var(--rot-end));
       }
     }
   </style>
 </head>
 <body>
+
+  <!-- 実写を「イラスト・アニメ塗り風」にデフォルメするSVGフィルタ定義 -->
+  <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+    <defs>
+      <filter id="toon-effect" color-interpolation-filters="sRGB">
+        <!-- 少しだけ滑らかにして肌のノイズを減らす -->
+        <feGaussianBlur stdDeviation="0.7" result="smoothed" />
+        <!-- 色数を階調化（ポスタリゼーション）してイラスト塗り風にする -->
+        <feComponentTransfer in="smoothed" result="posterized">
+          <feFuncR type="discrete" tableValues="0.08 0.25 0.45 0.65 0.82 0.96" />
+          <feFuncG type="discrete" tableValues="0.08 0.24 0.42 0.62 0.80 0.95" />
+          <feFuncB type="discrete" tableValues="0.08 0.22 0.40 0.58 0.78 0.94" />
+        </feComponentTransfer>
+        <!-- 元の写真と7:3でブレンドして「本人とすぐわかる絶妙なイラスト感」にする -->
+        <feBlend mode="normal" in="posterized" in2="SourceGraphic" result="blended" />
+      </filter>
+    </defs>
+  </svg>
 
   <div id="score-board">残り時間: <span id="time">10</span>s | スコア: <span id="score">0</span></div>
 
@@ -130,65 +153,51 @@
     <!-- リアル風・2つの球体SVG -->
     <svg id="sac-svg" viewBox="0 0 260 240">
       <defs>
-        <!-- 左玉の立体肌色グラデーション -->
         <radialGradient id="skinGradL" cx="38%" cy="35%" r="65%">
           <stop offset="0%" stop-color="#f2c6b6"/>
           <stop offset="45%" stop-color="#dfa38f"/>
           <stop offset="80%" stop-color="#ba7865"/>
           <stop offset="100%" stop-color="#874f3f"/>
         </radialGradient>
-        <!-- 右玉の立体肌色グラデーション -->
         <radialGradient id="skinGradR" cx="42%" cy="35%" r="65%">
           <stop offset="0%" stop-color="#f2c6b6"/>
           <stop offset="45%" stop-color="#dca08c"/>
           <stop offset="80%" stop-color="#b57360"/>
           <stop offset="100%" stop-color="#80493a"/>
         </radialGradient>
-        <!-- 中央の谷間シャドウ -->
-        <linearGradient id="seamShadow" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="rgba(90,40,30,0)"/>
-          <stop offset="50%" stop-color="rgba(75,30,20,0.55)"/>
-          <stop offset="100%" stop-color="rgba(90,40,30,0)"/>
-        </linearGradient>
       </defs>
 
       <!-- 付け根のつながり部分 -->
       <path d="M 75,35 Q 130,55 185,35 Q 200,85 130,95 Q 60,85 75,35 Z" fill="#b57360" />
 
-      <!-- 右側の球体（少し高め） -->
+      <!-- 右側の球体 -->
       <g id="right-ball">
         <ellipse cx="168" cy="122" rx="64" ry="76" transform="rotate(-8 168 122)" fill="url(#skinGradR)" stroke="#7a4436" stroke-width="1.5"/>
-        <!-- シワ・血管の質感 -->
         <path d="M 145,65 Q 165,78 185,68" fill="none" stroke="#9e5f4d" stroke-width="1.3" opacity="0.6" stroke-linecap="round"/>
         <path d="M 160,92 Q 190,102 212,88" fill="none" stroke="#9e5f4d" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
         <path d="M 140,145 Q 175,160 208,140" fill="none" stroke="#8c5040" stroke-width="1.4" opacity="0.55" stroke-linecap="round"/>
         <path d="M 152,175 Q 180,185 198,170" fill="none" stroke="#8c5040" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
-        <!-- 血管風ライン -->
         <path d="M 185,80 Q 178,105 190,122 Q 195,135 188,150" fill="none" stroke="#964b4b" stroke-width="1" opacity="0.35"/>
-        <!-- ちぢれ毛 -->
         <path d="M 218,95 Q 232,102 225,112 Q 220,118 228,124" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.75"/>
         <path d="M 195,185 Q 205,198 196,205" fill="none" stroke="#2a1f1d" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
         <path d="M 165,55 Q 172,42 182,48" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
       </g>
 
-      <!-- 左側の球体（少し大きめ＆低めに垂れるリアル仕様） -->
+      <!-- 左側の球体 -->
       <g id="left-ball">
         <ellipse cx="94" cy="134" rx="67" ry="80" transform="rotate(9 94 134)" fill="url(#skinGradL)" stroke="#7a4436" stroke-width="1.5"/>
-        <!-- シワ・血管の質感 -->
         <path d="M 55,85 Q 85,98 118,86" fill="none" stroke="#9e5f4d" stroke-width="1.3" opacity="0.6" stroke-linecap="round"/>
         <path d="M 42,122 Q 78,136 115,120" fill="none" stroke="#9e5f4d" stroke-width="1.3" opacity="0.5" stroke-linecap="round"/>
         <path d="M 48,162 Q 88,178 128,162" fill="none" stroke="#8c5040" stroke-width="1.4" opacity="0.55" stroke-linecap="round"/>
         <path d="M 68,192 Q 95,202 120,190" fill="none" stroke="#8c5040" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
-        <!-- 血管風ライン -->
         <path d="M 65,95 Q 75,120 62,145 Q 58,160 70,175" fill="none" stroke="#964b4b" stroke-width="1" opacity="0.35"/>
-        <!-- ちぢれ毛 -->
         <path d="M 35,108 Q 20,115 28,126 Q 34,132 25,138" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.75"/>
         <path d="M 52,188 Q 42,202 50,210" fill="none" stroke="#2a1f1d" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
         <path d="M 95,212 Q 92,226 102,228" fill="none" stroke="#2a1f1d" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/>
         <path d="M 75,58 Q 68,45 58,52" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
       </g>
 
-      <!-- 中央の縫線（陰嚢縫線）のリアルな筋 -->
+      <!-- 中央の縫線 -->
       <path d="M 130,52 Q 136,125 126,188" fill="none" stroke="#6e382b" stroke-width="2.2" opacity="0.65" stroke-linecap="round"/>
     </svg>
 
@@ -211,117 +220,31 @@
     const timeEl = document.getElementById('time');
     const msgEl = document.getElementById('msg');
 
-    // 添付された3枚の写真をデフォルメしたSVGテンプレート
-    const faceSVGs = [
-      // パターン1: 半目＋おちょぼ口（1枚目）
-      `<svg viewBox="0 0 120 145" width="100%" height="100%">
-        <!-- 黒Tシャツ襟元 -->
-        <path d="M 20,130 Q 60,145 100,130 L 110,145 L 10,145 Z" fill="#18202c"/>
-        <!-- 黒イヤホン -->
-        <rect x="14" y="76" width="8" height="20" rx="4" transform="rotate(12 18 86)" fill="#25282e"/>
-        <rect x="98" y="78" width="7" height="18" rx="3.5" transform="rotate(-10 101 87)" fill="#25282e"/>
-        <!-- 顔の輪郭 -->
-        <path d="M 24,55 Q 20,98 32,116 Q 46,136 60,136 Q 74,136 88,116 Q 100,98 96,55 Z" fill="#f3c69f" stroke="#c59068" stroke-width="1.5"/>
-        <!-- 青ヒゲゾーン -->
-        <ellipse cx="60" cy="101" rx="22" ry="12" fill="#7d8c89" opacity="0.38"/>
-        <ellipse cx="60" cy="127" rx="14" ry="6" fill="#7d8c89" opacity="0.3"/>
-        <!-- 鼻（下アングル強調） -->
-        <path d="M 53,68 Q 50,85 47,87 Q 60,92 73,87 Q 70,85 67,68" fill="#e6b187"/>
-        <ellipse cx="54" cy="87" rx="4.5" ry="3" fill="#2b1912"/>
-        <ellipse cx="66" cy="87" rx="4.5" ry="3" fill="#2b1912"/>
-        <!-- 半目 -->
-        <path d="M 33,67 Q 43,64 51,68" fill="none" stroke="#5a3826" stroke-width="1.5"/>
-        <path d="M 34,71 Q 43,69 50,72 Q 43,74 34,71 Z" fill="#1c120c"/>
-        <path d="M 69,68 Q 77,65 87,68" fill="none" stroke="#5a3826" stroke-width="1.5"/>
-        <path d="M 70,72 Q 77,70 86,73 Q 77,75 70,72 Z" fill="#1c120c"/>
-        <!-- 眉毛 -->
-        <path d="M 31,58 Q 42,54 52,58" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M 68,58 Q 78,54 89,59" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <!-- おちょぼ口＆前歯 -->
-        <ellipse cx="60" cy="109" rx="14" ry="9" fill="#b86b67"/>
-        <ellipse cx="60" cy="109" rx="9" ry="4.5" fill="#2e1111"/>
-        <rect x="55" y="105" width="4.5" height="3.5" rx="1" fill="#f7f3e8"/>
-        <rect x="60.5" y="105" width="4.5" height="3.5" rx="1" fill="#f7f3e8"/>
-        <!-- ヘアバンド＆黒髪マッシュ -->
-        <path d="M 20,58 Q 60,40 100,58 L 103,45 Q 60,28 17,45 Z" fill="#292321"/>
-        <path d="M 14,50 Q 18,12 60,12 Q 102,12 106,50 Q 92,38 82,54 Q 75,38 66,56 Q 58,36 50,55 Q 40,38 32,53 Q 22,40 14,50 Z" fill="#1c1918"/>
-      </svg>`,
-
-      // パターン2: 左目ギュッ＆口開け（2枚目）
-      `<svg viewBox="0 0 120 145" width="100%" height="100%">
-        <path d="M 20,130 Q 60,145 100,130 L 110,145 L 10,145 Z" fill="#18202c"/>
-        <rect x="14" y="76" width="8" height="20" rx="4" transform="rotate(12 18 86)" fill="#25282e"/>
-        <rect x="98" y="78" width="7" height="18" rx="3.5" transform="rotate(-10 101 87)" fill="#25282e"/>
-        <path d="M 24,55 Q 20,98 32,116 Q 46,136 60,136 Q 74,136 88,116 Q 100,98 96,55 Z" fill="#f3c69f" stroke="#c59068" stroke-width="1.5"/>
-        <!-- 青ヒゲゾーン -->
-        <ellipse cx="60" cy="101" rx="22" ry="12" fill="#7d8c89" opacity="0.38"/>
-        <!-- 眉間のシワ -->
-        <path d="M 56,57 L 57,66 M 63,57 L 62,66" stroke="#b57e58" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- 鼻 -->
-        <path d="M 53,68 Q 50,85 47,87 Q 60,92 73,87 Q 70,85 67,68" fill="#e6b187"/>
-        <ellipse cx="54" cy="87" rx="4.5" ry="3" fill="#2b1912"/>
-        <ellipse cx="66" cy="87" rx="4.5" ry="3" fill="#2b1912"/>
-        <!-- 右目（細目）＆左目（ギュッと閉じる） -->
-        <ellipse cx="42" cy="70" rx="6.5" ry="2.5" fill="#1c120c"/>
-        <path d="M 67,71 Q 77,67 87,73" fill="none" stroke="#2b1912" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M 70,74 L 84,76" fill="none" stroke="#b57e58" stroke-width="1.3"/>
-        <!-- 眉毛 -->
-        <path d="M 31,56 Q 42,52 52,58" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M 67,61 Q 78,58 88,63" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <!-- 口 -->
-        <ellipse cx="60" cy="109" rx="15" ry="9.5" fill="#b86b67"/>
-        <ellipse cx="60" cy="109" rx="10.5" ry="5.5" fill="#2e1111"/>
-        <rect x="54" y="104" width="4" height="4" rx="1" fill="#f7f3e8"/>
-        <rect x="58.5" y="104" width="4" height="4" rx="1" fill="#f7f3e8"/>
-        <rect x="63" y="104.5" width="3.5" height="3.5" rx="1" fill="#f7f3e8"/>
-        <!-- ヘアバンド＆黒髪マッシュ -->
-        <path d="M 20,58 Q 60,40 100,58 L 103,45 Q 60,28 17,45 Z" fill="#292321"/>
-        <path d="M 14,50 Q 18,12 60,12 Q 102,12 106,50 Q 92,38 82,54 Q 75,38 66,56 Q 58,36 50,55 Q 40,38 32,53 Q 22,40 14,50 Z" fill="#1c1918"/>
-      </svg>`,
-
-      // パターン3: 目閉じ＋舌出し絶頂顔（3枚目）
-      `<svg viewBox="0 0 120 145" width="100%" height="100%">
-        <path d="M 20,130 Q 60,145 100,130 L 110,145 L 10,145 Z" fill="#18202c"/>
-        <rect x="14" y="76" width="8" height="20" rx="4" transform="rotate(12 18 86)" fill="#25282e"/>
-        <rect x="98" y="78" width="7" height="18" rx="3.5" transform="rotate(-10 101 87)" fill="#25282e"/>
-        <!-- 少し縦に伸びた輪郭＋二重あごライン -->
-        <path d="M 24,53 Q 20,100 32,120 Q 46,139 60,139 Q 74,139 88,120 Q 100,100 96,53 Z" fill="#f3c69f" stroke="#c59068" stroke-width="1.5"/>
-        <path d="M 38,126 Q 60,136 82,126" fill="none" stroke="#b57e58" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- ほうれい線＆青ヒゲ -->
-        <ellipse cx="60" cy="105" rx="24" ry="15" fill="#7d8c89" opacity="0.35"/>
-        <path d="M 44,86 Q 34,102 37,118" fill="none" stroke="#b57e58" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M 76,86 Q 86,102 83,118" fill="none" stroke="#b57e58" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- 鼻 -->
-        <path d="M 53,66 Q 50,83 47,85 Q 60,90 73,85 Q 70,83 67,66" fill="#e6b187"/>
-        <ellipse cx="54" cy="85" rx="4.5" ry="3.2" fill="#2b1912"/>
-        <ellipse cx="66" cy="85" rx="4.5" ry="3.2" fill="#2b1912"/>
-        <!-- 完全に閉じた両目 -->
-        <path d="M 33,69 Q 42,71 51,68" fill="none" stroke="#2b1912" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M 69,68 Q 78,71 87,69" fill="none" stroke="#2b1912" stroke-width="2.4" stroke-linecap="round"/>
-        <!-- ハの字気味の眉毛 -->
-        <path d="M 31,57 Q 42,51 52,55" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M 68,55 Q 78,51 89,57" fill="none" stroke="#261f1d" stroke-width="3.2" stroke-linecap="round"/>
-        <!-- 大きく開いた口＋ベーっと出た舌 -->
-        <ellipse cx="60" cy="110" rx="18" ry="13" fill="#a85854"/>
-        <ellipse cx="60" cy="110" rx="14" ry="9.5" fill="#3a1212"/>
-        <ellipse cx="60" cy="109" rx="11" ry="7.5" fill="#d9757b" stroke="#9e464b" stroke-width="1"/>
-        <path d="M 60,102 L 60,113" stroke="#b5555b" stroke-width="1" opacity="0.6"/>
-        <!-- ヘアバンド＆黒髪マッシュ -->
-        <path d="M 20,58 Q 60,40 100,58 L 103,45 Q 60,28 17,45 Z" fill="#292321"/>
-        <path d="M 14,50 Q 18,12 60,12 Q 102,12 106,50 Q 92,38 82,54 Q 75,38 66,56 Q 58,36 50,55 Q 40,38 32,53 Q 22,40 14,50 Z" fill="#1c1918"/>
-      </svg>`
+    // アップロードされた画像リスト（4395.jpg 等でも face1.jpg 等でも存在する方を自動検出）
+    const candidateFiles = [
+      '4395.jpg', '4396.jpg', '4397.jpg',
+      'face1.jpg', 'face2.jpg', 'face3.jpg'
     ];
+    let loadedImages = [];
+
+    // 画像のプリロード（存在するファイルだけ有効化）
+    candidateFiles.forEach(src => {
+      const img = new Image();
+      img.onload = () => {
+        if (!loadedImages.includes(src)) loadedImages.push(src);
+      };
+      img.src = src;
+    });
 
     container.addEventListener('pointerdown', (e) => {
       e.preventDefault();
 
-      // ぷるんアニメーション発動
+      // ぷるんアニメーション
       sacSvg.classList.remove('jiggle-left', 'jiggle-right');
-      void sacSvg.offsetWidth; // リフロー強制
+      void sacSvg.offsetWidth;
       toggleSide = !toggleSide;
       sacSvg.classList.add(toggleSide ? 'jiggle-left' : 'jiggle-right');
 
-      // タップ座標から顔をふわっと浮かばせる
       const x = e.clientX || window.innerWidth / 2;
       const y = e.clientY || window.innerHeight / 2;
       spawnFloatingFace(x, y);
@@ -338,12 +261,12 @@
       const faceEl = document.createElement('div');
       faceEl.className = 'floating-face';
 
-      // 3種類の顔からランダムに選択
-      const randomIndex = Math.floor(Math.random() * faceSVGs.length);
-      faceEl.innerHTML = faceSVGs[randomIndex];
+      // 読み込めた画像からランダムに選択（まだ読み込めていない場合はデフォルト指定）
+      const pool = loadedImages.length > 0 ? loadedImages : ['4395.jpg', '4396.jpg', '4397.jpg'];
+      const chosenImg = pool[Math.floor(Math.random() * pool.length)];
+      faceEl.style.backgroundImage = `url('${chosenImg}')`;
 
-      // ランダムな揺れ幅・角度を設定
-      const driftX = (Math.random() - 0.5) * 110 + 'px';
+      const driftX = (Math.random() - 0.5) * 120 + 'px';
       const rotStart = (Math.random() - 0.5) * 20 + 'deg';
       const rotMid = (Math.random() - 0.5) * 25 + 'deg';
       const rotEnd = (Math.random() - 0.5) * 40 + 'deg';
@@ -363,12 +286,12 @@
     }
 
     function startGame() {
-      score = 1; // 初回タップ分もカウント
+      score = 1;
       timeLeft = 10;
       playing = true;
       scoreEl.textContent = score;
       timeEl.textContent = timeLeft;
-      labelEl.textContent = ''; // プレイ中は文字を消してビジュアルを邪魔しない
+      labelEl.textContent = '';
       msgEl.textContent = '連打しろー！！';
 
       timer = setInterval(() => {
