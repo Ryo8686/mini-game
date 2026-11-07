@@ -33,7 +33,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* 2つの球体コンテナ */
     #target-container {
       position: relative;
       width: 280px;
@@ -91,23 +90,23 @@
       min-height: 1.5em;
       z-index: 20;
       text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      text-align: center;
+      padding: 0 16px;
     }
 
-    /* ふわっと浮かぶ顔ステッカー（本人写真のイラスト風デフォルメ） */
+    /* ふわっと浮かぶ顔ステッカー */
     .floating-face {
       position: fixed;
-      width: 120px;
-      height: 145px;
+      width: 125px;
+      height: 150px;
       pointer-events: none;
       z-index: 15;
-      border-radius: 50% 50% 46% 46%; /* 顔の輪郭に合わせてタマゴ型に切り抜き */
-      border: 3.5px solid rgba(255, 255, 255, 0.9); /* ステッカー風の白フチ */
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-      background-size: 155%; /* 背景の部屋を消して顔だけドアップにする */
-      background-position: 50% 56%; /* 顔の中心に合わせる */
+      border-radius: 50% 50% 46% 46%;
+      border: 3.5px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.65);
+      background-size: cover;
+      background-position: center;
       background-repeat: no-repeat;
-      /* イラスト・マンガ風にデフォルメするフィルタ適用 */
-      filter: url(#toon-effect) contrast(1.25) saturate(1.35) brightness(1.05);
       animation: floatUp 1.25s ease-out forwards;
     }
 
@@ -129,24 +128,6 @@
 </head>
 <body>
 
-  <!-- 実写を「イラスト・アニメ塗り風」にデフォルメするSVGフィルタ定義 -->
-  <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
-    <defs>
-      <filter id="toon-effect" color-interpolation-filters="sRGB">
-        <!-- 少しだけ滑らかにして肌のノイズを減らす -->
-        <feGaussianBlur stdDeviation="0.7" result="smoothed" />
-        <!-- 色数を階調化（ポスタリゼーション）してイラスト塗り風にする -->
-        <feComponentTransfer in="smoothed" result="posterized">
-          <feFuncR type="discrete" tableValues="0.08 0.25 0.45 0.65 0.82 0.96" />
-          <feFuncG type="discrete" tableValues="0.08 0.24 0.42 0.62 0.80 0.95" />
-          <feFuncB type="discrete" tableValues="0.08 0.22 0.40 0.58 0.78 0.94" />
-        </feComponentTransfer>
-        <!-- 元の写真と7:3でブレンドして「本人とすぐわかる絶妙なイラスト感」にする -->
-        <feBlend mode="normal" in="posterized" in2="SourceGraphic" result="blended" />
-      </filter>
-    </defs>
-  </svg>
-
   <div id="score-board">残り時間: <span id="time">10</span>s | スコア: <span id="score">0</span></div>
 
   <div id="target-container">
@@ -167,10 +148,8 @@
         </radialGradient>
       </defs>
 
-      <!-- 付け根のつながり部分 -->
       <path d="M 75,35 Q 130,55 185,35 Q 200,85 130,95 Q 60,85 75,35 Z" fill="#b57360" />
 
-      <!-- 右側の球体 -->
       <g id="right-ball">
         <ellipse cx="168" cy="122" rx="64" ry="76" transform="rotate(-8 168 122)" fill="url(#skinGradR)" stroke="#7a4436" stroke-width="1.5"/>
         <path d="M 145,65 Q 165,78 185,68" fill="none" stroke="#9e5f4d" stroke-width="1.3" opacity="0.6" stroke-linecap="round"/>
@@ -183,7 +162,6 @@
         <path d="M 165,55 Q 172,42 182,48" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
       </g>
 
-      <!-- 左側の球体 -->
       <g id="left-ball">
         <ellipse cx="94" cy="134" rx="67" ry="80" transform="rotate(9 94 134)" fill="url(#skinGradL)" stroke="#7a4436" stroke-width="1.5"/>
         <path d="M 55,85 Q 85,98 118,86" fill="none" stroke="#9e5f4d" stroke-width="1.3" opacity="0.6" stroke-linecap="round"/>
@@ -197,7 +175,6 @@
         <path d="M 75,58 Q 68,45 58,52" fill="none" stroke="#2a1f1d" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
       </g>
 
-      <!-- 中央の縫線 -->
       <path d="M 130,52 Q 136,125 126,188" fill="none" stroke="#6e382b" stroke-width="2.2" opacity="0.65" stroke-linecap="round"/>
     </svg>
 
@@ -220,26 +197,81 @@
     const timeEl = document.getElementById('time');
     const msgEl = document.getElementById('msg');
 
-    // アップロードされた画像リスト（4395.jpg 等でも face1.jpg 等でも存在する方を自動検出）
-    const candidateFiles = [
-      '4395.jpg', '4396.jpg', '4397.jpg',
-      'face1.jpg', 'face2.jpg', 'face3.jpg'
-    ];
-    let loadedImages = [];
+    // デフォルメ加工済みの画像データURLを保持する配列
+    const processedStickers = [];
 
-    // 画像のプリロード（存在するファイルだけ有効化）
-    candidateFiles.forEach(src => {
+    // 写真を読み込んで「顔ズーム切り抜き＋イラスト風ポスタリゼーション加工」を行う関数
+    function createCartoonSticker(imgUrl) {
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.onload = () => {
-        if (!loadedImages.includes(src)) loadedImages.push(src);
+        const canvas = document.createElement('canvas');
+        const w = 160;
+        const h = 192;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // 顔の中心部分だけを切り抜いて拡大描画（部屋の背景をカット）
+        const sx = img.width * 0.16;
+        const sy = img.height * 0.22;
+        const sw = img.width * 0.68;
+        const sh = img.height * 0.68;
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+
+        // ピクセル単位で「本人とすぐわかるイラスト・プリクラ風デフォルメ」をかける
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const d = imgData.data;
+        const levels = 6.5; // 色の階調数（イラスト塗り感）
+
+        for (let i = 0; i < d.length; i += 4) {
+          let r = d[i], g = d[i+1], b = d[i+2];
+
+          // コントラストと彩度を少し上げて表情を強調
+          r = Math.min(255, Math.max(0, (r - 128) * 1.22 + 135));
+          g = Math.min(255, Math.max(0, (g - 128) * 1.20 + 130));
+          b = Math.min(255, Math.max(0, (b - 128) * 1.18 + 128));
+
+          // ポスタリゼーション（階調化）した色と元の色を6:4でブレンド
+          const pr = Math.round((r / 255) * levels) / levels * 255;
+          const pg = Math.round((g / 255) * levels) / levels * 255;
+          const pb = Math.round((b / 255) * levels) / levels * 255;
+
+          d[i]   = r * 0.45 + pr * 0.55;
+          d[i+1] = g * 0.45 + pg * 0.55;
+          d[i+2] = b * 0.45 + pb * 0.55;
+        }
+        ctx.putImageData(imgData, 0, 0);
+
+        processedStickers.push(canvas.toDataURL('image/jpeg', 0.9));
       };
-      img.src = src;
-    });
+      img.src = imgUrl;
+    }
+
+    // GitHub APIでリポジトリ内の画像ファイルをすべて自動検出して読み込む
+    async function autoDetectRepoImages() {
+      try {
+        const res = await fetch('https://api.github.com/repos/Ryo8686/mini-game/contents/');
+        if (res.ok) {
+          const files = await res.json();
+          const imgFiles = files.filter(f => /\.(jpe?g|png|webp|gif)$/i.test(f.name));
+          imgFiles.forEach(f => createCartoonSticker(f.name));
+        }
+      } catch (e) {
+        console.warn('API fetch fallback:', e);
+      }
+
+      // 念のため代表的なファイル名でもフォールバック読み込み
+      ['4395.jpg', '4396.jpg', '4397.jpg', 'IMG_4395.jpg', 'IMG_4396.jpg', 'IMG_4397.jpg'].forEach(name => {
+        createCartoonSticker(name);
+      });
+    }
+
+    autoDetectRepoImages();
 
     container.addEventListener('pointerdown', (e) => {
       e.preventDefault();
 
-      // ぷるんアニメーション
       sacSvg.classList.remove('jiggle-left', 'jiggle-right');
       void sacSvg.offsetWidth;
       toggleSide = !toggleSide;
@@ -261,10 +293,10 @@
       const faceEl = document.createElement('div');
       faceEl.className = 'floating-face';
 
-      // 読み込めた画像からランダムに選択（まだ読み込めていない場合はデフォルト指定）
-      const pool = loadedImages.length > 0 ? loadedImages : ['4395.jpg', '4396.jpg', '4397.jpg'];
-      const chosenImg = pool[Math.floor(Math.random() * pool.length)];
-      faceEl.style.backgroundImage = `url('${chosenImg}')`;
+      if (processedStickers.length > 0) {
+        const chosen = processedStickers[Math.floor(Math.random() * processedStickers.length)];
+        faceEl.style.backgroundImage = `url('${chosen}')`;
+      }
 
       const driftX = (Math.random() - 0.5) * 120 + 'px';
       const rotStart = (Math.random() - 0.5) * 20 + 'deg';
