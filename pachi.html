@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>P 激熱神介入 - FEVER RUSH</title>
+  <style>
+    * { box-sizing: border-box; touch-action: manipulation; }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      background: radial-gradient(circle at center, #1b1226 0%, #08050c 100%);
+      color: #fff;
+      font-family: 'Arial Black', Impact, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+      padding: 16px 0;
+    }
+
+    /* 筐体フレーム枠 */
+    #machine-frame {
+      width: 92%;
+      max-width: 380px;
+      height: 72vh;
+      border: 6px solid #d4af37;
+      border-radius: 24px;
+      background: #11091a;
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    /* 上部ステータス & 保留 */
+    #top-panel {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    #rush-status {
+      font-size: 1.1rem;
+      color: #ffd700;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    }
+    #retainers {
+      display: flex;
+      gap: 6px;
+    }
+    .retainer-ball {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #333;
+      box-shadow: inset 0 0 4px #000;
+      transition: all 0.2s;
+    }
+    .retainer-ball.on {
+      background: radial-gradient(circle at 30% 30%, #ff5252, #b71c1c);
+      box-shadow: 0 0 8px #ff5252;
+    }
+
+    /* 液晶ディスプレイ（図柄） */
+    #screen {
+      width: 100%;
+      height: 180px;
+      background: radial-gradient(circle at center, #2e1a47 0%, #0d0617 100%);
+      border: 3px solid #ff007f;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+      overflow: hidden;
+    }
+    .digit-box {
+      width: 80px;
+      height: 110px;
+      background: linear-gradient(180deg, #222 0%, #444 50%, #222 100%);
+      border-radius: 12px;
+      border: 2px solid #aaa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 12px #fff, 0 4px 8px #000;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .digit-box.seven {
+      color: #ff2222;
+      text-shadow: 0 0 16px #ff0000, 0 0 30px #ffbb00;
+      border-color: #ffd700;
+    }
+
+    /* リーチ・ギミック表示エリア */
+    #gimmick-zone {
+      width: 100%;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 10;
+    }
+    #instruction {
+      font-size: 1.3rem;
+      color: #ffea00;
+      text-shadow: 0 0 10px #ff5500;
+      margin-bottom: 6px;
+      min-height: 1.4em;
+    }
+    #gauge-bar {
+      width: 85%;
+      height: 20px;
+      background: #222;
+      border-radius: 10px;
+      border: 2px solid #555;
+      overflow: hidden;
+      display: none;
+    }
+    #gauge-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00e5ff, #ff007f);
+      transition: width 0.05s linear;
+    }
+
+    /* タイミング目押し用のサークルリング */
+    #timing-ring-box {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    #target-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 4px solid #ff1744;
+      box-shadow: 0 0 12px #ff1744;
+    }
+    #shrinking-ring {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid #00e5ff;
+      box-shadow: 0 0 10px #00e5ff;
+    }
+
+    /* 巨大 PUSH ボタン */
+    #push-button-box {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding-bottom: 10px;
+      z-index: 10;
+    }
+    #push-btn {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 5px solid #d4af37;
+      background: radial-gradient(circle at 35% 35%, #ff2a2a, #800000);
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 900;
+      box-shadow: 0 10px 25px rgba(255, 0, 0, 0.6), inset 0 0 15px rgba(255,255,255,0.4);
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.05s;
+    }
+    #push-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 4px 12px rgba(255, 0, 0, 0.8);
+    }
+    #push-btn.gold-glow {
+      animation: pulseGold 0.4s infinite alternate;
+    }
+    @keyframes pulseGold {
+      from { box-shadow: 0 0 15px #ffd700, inset 0 0 10px #fff; }
+      to { box-shadow: 0 0 35px #ff0055, inset 0 0 25px #ffd700; transform: scale(1.05); }
+    }
+
+    /* 下部：玉打ち出しハンドル */
+    #control-bottom {
+      width: 92%;
+      max-width: 380px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    #shoot-btn {
+      width: 100%;
+      height: 52px;
+      border-radius: 26px;
+      border: none;
+      background: linear-gradient(135deg, #00e5ff, #0077ff);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 18px rgba(0, 119, 255, 0.5);
+      cursor: pointer;
+    }
+    #shoot-btn:active { transform: scale(0.96); }
+
+    /* 全画面レインボー極彩色フラッシュ（大当たり） */
+    #flash-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      animation: rainbowGlow 0.18s infinite alternate;
+    }
+    @keyframes rainbowGlow {
+      0% { background: rgba(255, 0, 0, 0.55); }
+      20% { background: rgba(255, 165, 0, 0.55); }
+      40% { background: rgba(255, 255, 0, 0.55); }
+      60% { background: rgba(0, 255, 0, 0.55); }
+      80% { background: rgba(0, 180, 255, 0.55); }
+      100% { background: rgba(238, 130, 238, 0.55); }
+    }
+
+    /* 画面シェイク */
+    .shake {
+      animation: shakeScreen 0.25s infinite;
+    }
+    @keyframes shakeScreen {
+      0% { transform: translate(2px, 3px) rotate(0deg); }
+      25% { transform: translate(-3px, -2px) rotate(-1deg); }
+      50% { transform: translate(3px, 1px) rotate(1deg); }
+      75% { transform: translate(-1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="flash-overlay"></div>
+
+  <div id="machine-frame">
+    <div id="top-panel">
+      <div id="rush-status">MODE: 通常時</div>
+      <div id="retainers">
+        <div class="retainer-ball" id="ret-0"></div>
+        <div class="retainer-ball" id="ret-1"></div>
+        <div class="retainer-ball" id="ret-2"></div>
+        <div class="retainer-ball" id="ret-3"></div>
+      </div>
+    </div>
+
+    <!-- メイン液晶（3図柄） -->
+    <div id="screen">
+      <div class="digit-box" id="reel-left">1</div>
+      <div class="digit-box" id="reel-center">2</div>
+      <div class="digit-box" id="reel-right">3</div>
+    </div>
+
+    <!-- 介入ギミックUIエリア -->
+    <div id="gimmick-zone">
+      <div id="instruction">玉を打ってヘソに入れろ！</div>
+      <div id="gauge-bar"><div id="gauge-fill"></div></div>
+      <div id="timing-ring-box">
+        <div id="target-circle"></div>
+        <div id="shrinking-ring"></div>
+      </div>
+    </div>
+
+    <!-- 運命をねじ伏せるPUSHボタン -->
+    <div id="push-button-box">
+      <button id="push-btn">PUSH</button>
+    </div>
+  </div>
+
+  <div id="control-bottom">
+    <button id="shoot-btn">玉を打つ (入賞)</button>
+  </div>
+
+  <script>
+    // --- Web Audio API（パチンコ特有のシンセ効果音） ---
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let actx = null;
+
+    function initAudio() {
+      if (!actx) actx = new AudioCtx();
+      if (actx.state === 'suspended') actx.resume();
+    }
+
+    // 入賞音（ピロリン♪）
+    function playStartSound() {
+      if (!actx) return;
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.frequency.setValueAtTime(659.25, actx.currentTime); // E5
+      osc.frequency.setValueAtTime(880, actx.currentTime + 0.08); // A5
+      gain.gain.setValueAtTime(0.3, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.25);
+      osc.start(); osc.stop(actx.currentTime + 0.25);
+    }
+
+    // テンパイ音（デデンッ！）
+    function playReachSound() {
+      if (!actx) return;
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'sawtooth';
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.frequency.setValueAtTime(320, actx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(700, actx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.5, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.35);
+      osc.start(); osc.stop(actx.currentTime + 0.35);
+    }
+
+    // ボタン叩き音（重低音ドォン）
+    function playThumpSound() {
+      if (!actx) return;
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'triangle';
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.frequency.setValueAtTime(140, actx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(35, actx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.7, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.2);
+      osc.start(); osc.stop(actx.currentTime + 0.2);
+    }
+
+    // ★脳汁全開：確定音（キュインキュインキュイン！ピピピピ！）
+    function playFeverSound() {
+      if (!actx) return;
+      for (let i = 0; i < 9; i++) {
+        setTimeout(() => {
+          const osc = actx.createOscillator();
+          const gain = actx.createGain();
+          osc.type = 'sine';
+          osc.connect(gain); gain.connect(actx.destination);
+          osc.frequency.setValueAtTime(1300 + (i % 2) * 500, actx.currentTime);
+          gain.gain.setValueAtTime(0.6, actx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.12);
+          osc.start(); osc.stop(actx.currentTime + 0.12);
+        }, i * 90);
+      }
+    }
+
+    // ハズレ音（ガシャーン）
+    function playFailSound() {
+      if (!actx) return;
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'sawtooth';
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.frequency.setValueAtTime(180, actx.currentTime);
+      osc.frequency.linearRampToValueAtTime(60, actx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.4, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.35);
+      osc.start(); osc.stop(actx.currentTime + 0.35);
+    }
+
+    // --- ゲームステート管理 ---
+    let retainers = 0; // 保留玉（最大4）
+    let isSpinning = false;
+    let isReach = false;
+    let currentGimmick = null; // 'mash', 'timing', 'hold'
+    let inRushMode = false;
+
+    // UI要素
+    const reelL = document.getElementById('reel-left');
+    const reelC = document.getElementById('reel-center');
+    const reelR = document.getElementById('reel-right');
+    const instEl = document.getElementById('instruction');
+    const pushBtn = document.getElementById('push-btn');
+    const shootBtn = document.getElementById('shoot-btn');
+    const flashOverlay = document.getElementById('flash-overlay');
+    const frame = document.getElementById('machine-frame');
+    const gaugeBar = document.getElementById('gauge-bar');
+    const gaugeFill = document.getElementById('gauge-fill');
+    const timingBox = document.getElementById('timing-ring-box');
+    const shrinkRing = document.getElementById('shrinking-ring');
+    const rushStatus = document.getElementById('rush-status');
+
+    function updateRetainers() {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`ret-${i}`).classList.toggle('on', i < retainers);
+      }
+    }
+
+    // 「玉を打つ」ボタン
+    shootBtn.addEventListener('pointerdown', () => {
+      initAudio();
+      if (retainers < 4) {
+        retainers++;
+        playStartSound();
+        updateRetainers();
+        if (!isSpinning) processNextSpin();
+      }
+    });
+
+    // 保留消化 & スピン開始
+    function processNextSpin() {
+      if (retainers <= 0) return;
+      retainers--;
+      updateRetainers();
+      isSpinning = true;
+      resetReelStyles();
+
+      instEl.textContent = inRushMode ? '★RUSH中：激速変動★' : '変動中…';
+
+      // テンパイ発生率：通常時40%、RUSH中80%
+      const willReach = Math.random() < (inRushMode ? 0.85 : 0.45);
+
+      let spins = 0;
+      const spinInterval = setInterval(() => {
+        reelL.textContent = Math.floor(Math.random() * 9) + 1;
+        reelC.textContent = Math.floor(Math.random() * 9) + 1;
+        reelR.textContent = Math.floor(Math.random() * 9) + 1;
+        spins++;
+
+        if (spins > 14) {
+          clearInterval(spinInterval);
+          if (willReach) {
+            startReachPhase();
+          } else {
+            // 普通のハズレ停止
+            reelL.textContent = 3; reelC.textContent = 6; reelR.textContent = 8;
+            instEl.textContent = 'ハズレ… 次を打て！';
+            isSpinning = false;
+            setTimeout(processNextSpin, 400);
+          }
+        }
+      }, 70);
+    }
+
+    function resetReelStyles() {
+      [reelL, reelC, reelR].forEach(r => {
+        r.classList.remove('seven');
+        r.style.color = '#fff';
+      });
+      pushBtn.classList.remove('gold-glow');
+    }
+
+    // --- 激アツリーチ演出 ---
+    function startReachPhase() {
+      isReach = true;
+      playReachSound();
+      frame.classList.add('shake');
+      setTimeout(() => frame.classList.remove('shake'), 400);
+
+      // 左と右を 7 でテンパイ固定！
+      reelL.textContent = 7; reelL.classList.add('seven');
+      reelR.textContent = 7; reelR.classList.add('seven');
+
+      instEl.innerHTML = '<span style="color:#ff0055">★激アツ 7テンパイ★</span>';
+      pushBtn.classList.add('gold-glow');
+
+      // 中図柄は低速スロー回転
+      const slowSpin = setInterval(() => {
+        reelC.textContent = Math.floor(Math.random() * 9) + 1;
+      }, 120);
+
+      // 3種類の介入操作からランダム選出
+      const modes = ['mash', 'timing', 'hold'];
+      const chosen = modes[Math.floor(Math.random() * modes.length)];
+
+      setTimeout(() => {
+        clearInterval(slowSpin);
+        triggerPlayerIntervention(chosen);
+      }, 1200);
+    }
+
+    // --- プレイヤーガチ介入ギミック ---
+    let mashCount = 0;
+    let timingAnim = null;
+    let holdStartTime = 0;
+    let holdTimeout = null;
+
+    function triggerPlayerIntervention(type) {
+      currentGimmick = type;
+
+      if (type === 'mash') {
+        // ① 連打ギミック
+        instEl.textContent = 'ボタンを猛連打して7を押し込め！';
+        gaugeBar.style.display = 'block';
+        gaugeFill.style.width = '0%';
+        mashCount = 0;
+
+        let timeLeft = 30; // 3.0秒
+        const timer = setInterval(() => {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            judgeOutcome(mashCount >= 14); // 14回以上連打で成功
+          }
+        }, 100);
+
+      } else if (type === 'timing') {
+        // ② 一撃ジャスト押しギミック
+        instEl.textContent = '赤枠に重なる瞬間に叩け！';
+        timingBox.style.display = 'flex';
+        let scale = 1.8;
+        let isPressed = false;
+
+        timingAnim = setInterval(() => {
+          scale -= 0.035;
+          shrinkRing.style.transform = `scale(${scale})`;
+          if (scale <= 0.6) {
+            clearInterval(timingAnim);
+            if (!isPressed) judgeOutcome(false); // 押し遅れ
+          }
+        }, 30);
+
+        pushBtn.onpointerdown = () => {
+          if (currentGimmick !== 'timing' || isPressed) return;
+          isPressed = true;
+          clearInterval(timingAnim);
+          playThumpSound();
+          // scaleが 0.95〜1.15 の範囲ならジャスト成功
+          judgeOutcome(scale >= 0.88 && scale <= 1.22);
+        };
+
+      } else if (type === 'hold') {
+        // ③ 長押しチャージギミック
+        instEl.textContent = '長押しチャージ！2.5秒ジャストで離せ！';
+        gaugeBar.style.display = 'block';
+        gaugeFill.style.width = '0%';
+        gaugeFill.style.background = 'linear-gradient(90deg, #ffeb3b, #f44336)';
+
+        pushBtn.onpointerdown = () => {
+          if (currentGimmick !== 'hold') return;
+          holdStartTime = Date.now();
+          gaugeFill.style.transition = 'width 2.5s linear';
+          gaugeFill.style.width = '100%';
+        };
+
+        pushBtn.onpointerup = () => {
+          if (currentGimmick !== 'hold' || holdStartTime === 0) return;
+          const elapsed = (Date.now() - holdStartTime) / 1000;
+          holdStartTime = 0;
+          playThumpSound();
+          // 2.2秒〜2.8秒のジャスト範囲で離せたら成功
+          judgeOutcome(elapsed >= 2.1 && elapsed <= 2.8);
+        };
+      }
+    }
+
+    // PUSHボタンの共通タップ処理（連打用）
+    pushBtn.addEventListener('pointerdown', () => {
+      initAudio();
+      if (currentGimmick === 'mash') {
+        mashCount++;
+        playThumpSound();
+        const pct = Math.min(100, (mashCount / 14) * 100);
+        gaugeFill.style.width = `${pct}%`;
+        frame.classList.add('shake');
+        setTimeout(() => frame.classList.remove('shake'), 80);
+      }
+    });
+
+    // --- 勝敗判定（脳汁FEVER or 絶望ハズレ） ---
+    function judgeOutcome(isWin) {
+      // ギミックUIリセット
+      gaugeBar.style.display = 'none';
+      timingBox.style.display = 'none';
+      gaugeFill.style.transition = 'width 0.05s linear';
+      pushBtn.onpointerdown = null;
+      pushBtn.onpointerup = null;
+      currentGimmick = null;
+
+      if (isWin) {
+        // ★FEVER確定！
+        playFeverSound();
+        reelC.textContent = 7;
+        reelC.classList.add('seven');
+        flashOverlay.style.display = 'block';
+        instEl.innerHTML = '<span style="color:#00ffcc; font-size:1.6rem;">超FEVER RUSH突入！！</span>';
+        inRushMode = true;
+        rushStatus.textContent = 'MODE: ★FEVER RUSH★';
+        rushStatus.style.color = '#00ffcc';
+
+        setTimeout(() => {
+          flashOverlay.style.display = 'none';
+          isSpinning = false;
+          // RUSH継続：即座に次のスピンへ！
+          setTimeout(processNextSpin, 800);
+        }, 2200);
+
+      } else {
+        // ハズレ（8で惜しくも停止）
+        playFailSound();
+        reelC.textContent = 8;
+        instEl.textContent = '無念… 介入失敗';
+        inRushMode = false;
+        rushStatus.textContent = 'MODE: 通常時';
+        rushStatus.style.color = '#ffd700';
+
+        setTimeout(() => {
+          isSpinning = false;
+          setTimeout(processNextSpin, 500);
+        }, 1200);
+      }
+    }
+  </script>
+</body>
+</html>
