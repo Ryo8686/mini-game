@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>P 激熱神介入 - FEVER RUSH</title>
+  <title>P 激熱神介入 - ハーレム＆ギャラリーRUSH</title>
   <style>
     * { box-sizing: border-box; touch-action: manipulation; }
     body {
@@ -13,23 +13,46 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      background: radial-gradient(circle at center, #1b1226 0%, #08050c 100%);
+      background: radial-gradient(circle at center, #261132 0%, #07030a 100%);
       color: #fff;
-      font-family: 'Arial Black', Impact, sans-serif;
+      font-family: 'Arial Black', 'Hiragino Kaku Gothic ProN', sans-serif;
       user-select: none;
       -webkit-user-select: none;
       overflow: hidden;
-      padding: 16px 0;
+      padding: 8px 0;
     }
+
+    /* 上部データカウンター（連チャン数・出玉・ドル箱） */
+    #data-counter {
+      width: 94%;
+      max-width: 390px;
+      background: linear-gradient(180deg, #1a1a1a, #050505);
+      border: 3px solid #ff0055;
+      border-radius: 12px;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+      z-index: 30;
+    }
+    .counter-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .counter-label { font-size: 0.65rem; color: #aaa; }
+    .counter-val { font-size: 1.3rem; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 8px #ff9800; }
+    #hakos { font-size: 0.9rem; letter-spacing: -2px; max-width: 110px; overflow: hidden; white-space: nowrap; }
 
     /* 筐体フレーム枠 */
     #machine-frame {
-      width: 92%;
-      max-width: 380px;
-      height: 72vh;
-      border: 6px solid #d4af37;
+      width: 94%;
+      max-width: 390px;
+      height: 74vh;
+      border: 5px solid #d4af37;
       border-radius: 24px;
-      background: #11091a;
+      background: linear-gradient(180deg, #1b0c2e 0%, #0b0412 100%);
       box-shadow: 0 0 25px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
       display: flex;
       flex-direction: column;
@@ -37,10 +60,10 @@
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      padding: 12px;
+      padding: 10px;
     }
 
-    /* 上部ステータス & 保留 */
+    /* ステータス & 保留 */
     #top-panel {
       width: 100%;
       display: flex;
@@ -49,120 +72,200 @@
       z-index: 10;
     }
     #rush-status {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       color: #ffd700;
       text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
     }
-    #retainers {
-      display: flex;
-      gap: 6px;
-    }
+    #retainers { display: flex; gap: 6px; }
     .retainer-ball {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #333;
-      box-shadow: inset 0 0 4px #000;
-      transition: all 0.2s;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #333; box-shadow: inset 0 0 4px #000;
     }
     .retainer-ball.on {
       background: radial-gradient(circle at 30% 30%, #ff5252, #b71c1c);
       box-shadow: 0 0 8px #ff5252;
     }
 
-    /* 液晶ディスプレイ（図柄） */
+    /* メイン液晶ディスプレイ */
     #screen {
       width: 100%;
-      height: 180px;
-      background: radial-gradient(circle at center, #2e1a47 0%, #0d0617 100%);
+      height: 210px;
+      background: radial-gradient(circle at center, #381552 0%, #0d0417 100%);
       border: 3px solid #ff007f;
       border-radius: 16px;
       display: flex;
       justify-content: space-around;
       align-items: center;
       position: relative;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+      box-shadow: 0 0 18px rgba(255, 0, 127, 0.6);
       overflow: hidden;
+      z-index: 10;
     }
     .digit-box {
-      width: 80px;
-      height: 110px;
-      background: linear-gradient(180deg, #222 0%, #444 50%, #222 100%);
+      width: 76px;
+      height: 105px;
+      background: linear-gradient(180deg, #1f1f1f 0%, #3d3d3d 50%, #1f1f1f 100%);
       border-radius: 12px;
       border: 2px solid #aaa;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 4rem;
+      font-size: 3.8rem;
       font-weight: 900;
       color: #fff;
-      text-shadow: 0 0 12px #fff, 0 4px 8px #000;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-      position: relative;
+      text-shadow: 0 0 10px #fff, 0 4px 8px #000;
+      z-index: 5;
     }
     .digit-box.seven {
-      color: #ff2222;
-      text-shadow: 0 0 16px #ff0000, 0 0 30px #ffbb00;
+      color: #ff1744;
+      text-shadow: 0 0 16px #ff0000, 0 0 30px #ffea00;
       border-color: #ffd700;
+      background: linear-gradient(180deg, #3a0010 0%, #6e001f 50%, #3a0010 100%);
+    }
+
+    /* ★セクシーお姉さん表示レイヤー（大当たり＆RUSH中） */
+    #lady-stage {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at center, rgba(255, 20, 147, 0.88) 0%, rgba(45, 0, 54, 0.95) 100%);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    #lady-svg-holder {
+      width: 175px;
+      height: 175px;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+      animation: ladyFloat 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes ladyFloat {
+      from { transform: translateY(2px) scale(1); }
+      to { transform: translateY(-5px) scale(1.04); }
+    }
+    #lady-caption {
+      position: absolute;
+      bottom: 6px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffeb3b;
+      padding: 2px 14px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      border: 1px solid #ff80ab;
+      text-shadow: 0 0 6px #ff007f;
+    }
+
+    /* スワイプこすり用の曇りガラスレイヤー */
+    #scratch-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(45deg, #444, #444 10px, #666 10px, #666 20px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.3rem;
+      color: #ffea00;
+      z-index: 25;
+      cursor: pointer;
     }
 
     /* リーチ・ギミック表示エリア */
     #gimmick-zone {
       width: 100%;
-      min-height: 110px;
+      min-height: 95px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      z-index: 10;
+      z-index: 15;
     }
     #instruction {
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       color: #ffea00;
-      text-shadow: 0 0 10px #ff5500;
+      text-shadow: 0 0 8px #ff5500;
       margin-bottom: 6px;
       min-height: 1.4em;
     }
     #gauge-bar {
-      width: 85%;
+      width: 86%;
       height: 20px;
-      background: #222;
+      background: #1a1a1a;
       border-radius: 10px;
-      border: 2px solid #555;
+      border: 2px solid #777;
       overflow: hidden;
       display: none;
+      position: relative;
     }
     #gauge-fill {
       width: 0%;
       height: 100%;
       background: linear-gradient(90deg, #00e5ff, #ff007f);
-      transition: width 0.05s linear;
     }
 
-    /* タイミング目押し用のサークルリング */
+    /* 往復ペンデュラムバー */
+    #pendulum-zone {
+      width: 86%;
+      height: 24px;
+      background: #222;
+      border: 2px solid #fff;
+      border-radius: 12px;
+      position: relative;
+      display: none;
+      overflow: hidden;
+    }
+    #pendulum-target {
+      position: absolute;
+      left: 40%;
+      width: 20%;
+      height: 100%;
+      background: #ff1744;
+      box-shadow: 0 0 10px #ff1744;
+    }
+    #pendulum-needle {
+      position: absolute;
+      left: 0%;
+      width: 6%;
+      height: 100%;
+      background: #00e5ff;
+      box-shadow: 0 0 8px #fff;
+    }
+
+    /* タイミング目押しリング */
     #timing-ring-box {
       position: relative;
-      width: 90px;
-      height: 90px;
+      width: 76px; height: 76px;
       display: none;
-      justify-content: center;
-      align-items: center;
+      justify-content: center; align-items: center;
     }
     #target-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 4px solid #ff1744;
-      box-shadow: 0 0 12px #ff1744;
+      width: 48px; height: 48px;
+      border-radius: 50%; border: 4px solid #ff1744;
+      box-shadow: 0 0 10px #ff1744;
     }
     #shrinking-ring {
       position: absolute;
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: 3px solid #00e5ff;
-      box-shadow: 0 0 10px #00e5ff;
+      width: 90px; height: 90px;
+      border-radius: 50%; border: 3px solid #00e5ff;
+    }
+
+    /* 2択ボタン */
+    #choice-box {
+      display: none;
+      gap: 20px;
+    }
+    .choice-btn {
+      padding: 10px 24px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      border-radius: 12px;
+      border: 2px solid #ffd700;
+      background: linear-gradient(135deg, #ff0055, #7b1fa2);
+      color: #fff;
+      cursor: pointer;
     }
 
     /* 巨大 PUSH ボタン */
@@ -170,92 +273,136 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      padding-bottom: 10px;
-      z-index: 10;
+      z-index: 15;
     }
     #push-btn {
-      width: 140px;
-      height: 140px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       border: 5px solid #d4af37;
       background: radial-gradient(circle at 35% 35%, #ff2a2a, #800000);
       color: #fff;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: 900;
-      box-shadow: 0 10px 25px rgba(255, 0, 0, 0.6), inset 0 0 15px rgba(255,255,255,0.4);
+      box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6), inset 0 0 15px rgba(255,255,255,0.4);
       cursor: pointer;
       outline: none;
-      transition: transform 0.05s;
     }
-    #push-btn:active {
-      transform: scale(0.92);
-      box-shadow: 0 4px 12px rgba(255, 0, 0, 0.8);
-    }
-    #push-btn.gold-glow {
-      animation: pulseGold 0.4s infinite alternate;
-    }
+    #push-btn:active { transform: scale(0.92); }
+    #push-btn.gold-glow { animation: pulseGold 0.35s infinite alternate; }
     @keyframes pulseGold {
-      from { box-shadow: 0 0 15px #ffd700, inset 0 0 10px #fff; }
-      to { box-shadow: 0 0 35px #ff0055, inset 0 0 25px #ffd700; transform: scale(1.05); }
+      from { box-shadow: 0 0 12px #ffd700; }
+      to { box-shadow: 0 0 32px #ff0055, inset 0 0 22px #ffd700; transform: scale(1.06); }
+    }
+
+    /* ★あなたを羨ましがる周囲の人だかり（ギャラリー）エリア */
+    #crowd-area {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 75px;
+      pointer-events: none;
+      z-index: 22;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    .spectator {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 -4px;
+      animation: popSpectator 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes popSpectator {
+      from { transform: translateY(60px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .speech-bubble {
+      background: rgba(255, 255, 255, 0.94);
+      color: #111;
+      font-size: 0.62rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      animation: bobBubble 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes bobBubble {
+      from { transform: translateY(0); }
+      to { transform: translateY(-4px); }
+    }
+    .person-icon {
+      font-size: 1.7rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
     }
 
     /* 下部：玉打ち出しハンドル */
     #control-bottom {
-      width: 92%;
-      max-width: 380px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
+      width: 94%;
+      max-width: 390px;
+      z-index: 30;
     }
     #shoot-btn {
       width: 100%;
-      height: 52px;
-      border-radius: 26px;
+      height: 48px;
+      border-radius: 24px;
       border: none;
       background: linear-gradient(135deg, #00e5ff, #0077ff);
       color: #fff;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 900;
-      letter-spacing: 2px;
-      box-shadow: 0 6px 18px rgba(0, 119, 255, 0.5);
+      box-shadow: 0 6px 16px rgba(0, 119, 255, 0.5);
       cursor: pointer;
     }
     #shoot-btn:active { transform: scale(0.96); }
 
-    /* 全画面レインボー極彩色フラッシュ（大当たり） */
+    /* 全画面レインボーフラッシュ */
     #flash-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 1000;
-      display: none;
-      animation: rainbowGlow 0.18s infinite alternate;
+      pointer-events: none; z-index: 1000; display: none;
+      animation: rainbowGlow 0.16s infinite alternate;
     }
     @keyframes rainbowGlow {
-      0% { background: rgba(255, 0, 0, 0.55); }
-      20% { background: rgba(255, 165, 0, 0.55); }
-      40% { background: rgba(255, 255, 0, 0.55); }
-      60% { background: rgba(0, 255, 0, 0.55); }
-      80% { background: rgba(0, 180, 255, 0.55); }
-      100% { background: rgba(238, 130, 238, 0.55); }
+      0% { background: rgba(255, 0, 85, 0.45); }
+      33% { background: rgba(255, 234, 0, 0.45); }
+      66% { background: rgba(0, 229, 255, 0.45); }
+      100% { background: rgba(170, 0, 255, 0.45); }
     }
 
-    /* 画面シェイク */
-    .shake {
-      animation: shakeScreen 0.25s infinite;
-    }
+    .shake { animation: shakeScreen 0.2s infinite; }
     @keyframes shakeScreen {
-      0% { transform: translate(2px, 3px) rotate(0deg); }
-      25% { transform: translate(-3px, -2px) rotate(-1deg); }
-      50% { transform: translate(3px, 1px) rotate(1deg); }
-      75% { transform: translate(-1px, 2px) rotate(0deg); }
-      100% { transform: translate(1px, -2px) rotate(-1deg); }
+      0% { transform: translate(2px, 2px); }
+      50% { transform: translate(-3px, -2px); }
+      100% { transform: translate(2px, -2px); }
     }
   </style>
 </head>
 <body>
 
   <div id="flash-overlay"></div>
+
+  <!-- データカウンター（連チャン・出玉・ドル箱） -->
+  <div id="data-counter">
+    <div class="counter-item">
+      <span class="counter-label">連チャン数</span>
+      <span class="counter-val"><span id="streak-count">0</span> 連</span>
+    </div>
+    <div class="counter-item">
+      <span class="counter-label">総獲得出玉</span>
+      <span class="counter-val"><span id="balls-count">0</span> pt</span>
+    </div>
+    <div class="counter-item">
+      <span class="counter-label">ドル箱タワー</span>
+      <div id="hakos">なし</div>
+    </div>
+  </div>
 
   <div id="machine-frame">
     <div id="top-panel">
@@ -268,27 +415,47 @@
       </div>
     </div>
 
-    <!-- メイン液晶（3図柄） -->
+    <!-- 液晶画面 -->
     <div id="screen">
       <div class="digit-box" id="reel-left">1</div>
       <div class="digit-box" id="reel-center">2</div>
       <div class="digit-box" id="reel-right">3</div>
+
+      <!-- ★大当たり時のセクシーお姉さん登場ステージ -->
+      <div id="lady-stage">
+        <div id="lady-svg-holder"></div>
+        <div id="lady-caption">ああんっ♪ すごぉい♡</div>
+      </div>
+
+      <!-- スワイプギミック用の曇りレイヤー -->
+      <div id="scratch-overlay">指で左右にこすって削れ！！</div>
     </div>
 
-    <!-- 介入ギミックUIエリア -->
+    <!-- 6種類の介入ギミックエリア -->
     <div id="gimmick-zone">
       <div id="instruction">玉を打ってヘソに入れろ！</div>
       <div id="gauge-bar"><div id="gauge-fill"></div></div>
+      <div id="pendulum-zone">
+        <div id="pendulum-target"></div>
+        <div id="pendulum-needle"></div>
+      </div>
       <div id="timing-ring-box">
         <div id="target-circle"></div>
         <div id="shrinking-ring"></div>
       </div>
+      <div id="choice-box">
+        <button class="choice-btn" id="choice-left">左の箱</button>
+        <button class="choice-btn" id="choice-right">右の箱</button>
+      </div>
     </div>
 
-    <!-- 運命をねじ伏せるPUSHボタン -->
+    <!-- PUSHボタン -->
     <div id="push-button-box">
       <button id="push-btn">PUSH</button>
     </div>
+
+    <!-- ★連チャンするほど増える羨望のギャラリー（野次馬） -->
+    <div id="crowd-area"></div>
   </div>
 
   <div id="control-bottom">
@@ -296,95 +463,175 @@
   </div>
 
   <script>
-    // --- Web Audio API（パチンコ特有のシンセ効果音） ---
+    // --- シンセ効果音（Web Audio API） ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let actx = null;
-
     function initAudio() {
       if (!actx) actx = new AudioCtx();
       if (actx.state === 'suspended') actx.resume();
     }
-
-    // 入賞音（ピロリン♪）
-    function playStartSound() {
+    function playTone(freq1, freq2, dur, type = 'sine', vol = 0.4) {
       if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
+      osc.type = type;
       osc.connect(gain); gain.connect(actx.destination);
-      osc.frequency.setValueAtTime(659.25, actx.currentTime); // E5
-      osc.frequency.setValueAtTime(880, actx.currentTime + 0.08); // A5
-      gain.gain.setValueAtTime(0.3, actx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.25);
-      osc.start(); osc.stop(actx.currentTime + 0.25);
+      osc.frequency.setValueAtTime(freq1, actx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq2, actx.currentTime + dur);
+      gain.gain.setValueAtTime(vol, actx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + dur);
+      osc.start(); osc.stop(actx.currentTime + dur);
     }
-
-    // テンパイ音（デデンッ！）
-    function playReachSound() {
-      if (!actx) return;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.type = 'sawtooth';
-      osc.connect(gain); gain.connect(actx.destination);
-      osc.frequency.setValueAtTime(320, actx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(700, actx.currentTime + 0.25);
-      gain.gain.setValueAtTime(0.5, actx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.35);
-      osc.start(); osc.stop(actx.currentTime + 0.35);
-    }
-
-    // ボタン叩き音（重低音ドォン）
-    function playThumpSound() {
-      if (!actx) return;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.type = 'triangle';
-      osc.connect(gain); gain.connect(actx.destination);
-      osc.frequency.setValueAtTime(140, actx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(35, actx.currentTime + 0.18);
-      gain.gain.setValueAtTime(0.7, actx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.2);
-      osc.start(); osc.stop(actx.currentTime + 0.2);
-    }
-
-    // ★脳汁全開：確定音（キュインキュインキュイン！ピピピピ！）
     function playFeverSound() {
       if (!actx) return;
-      for (let i = 0; i < 9; i++) {
-        setTimeout(() => {
-          const osc = actx.createOscillator();
-          const gain = actx.createGain();
-          osc.type = 'sine';
-          osc.connect(gain); gain.connect(actx.destination);
-          osc.frequency.setValueAtTime(1300 + (i % 2) * 500, actx.currentTime);
-          gain.gain.setValueAtTime(0.6, actx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.12);
-          osc.start(); osc.stop(actx.currentTime + 0.12);
-        }, i * 90);
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => playTone(1200 + (i % 2) * 600, 1800, 0.11, 'sine', 0.55), i * 85);
       }
     }
 
-    // ハズレ音（ガシャーン）
-    function playFailSound() {
-      if (!actx) return;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.type = 'sawtooth';
-      osc.connect(gain); gain.connect(actx.destination);
-      osc.frequency.setValueAtTime(180, actx.currentTime);
-      osc.frequency.linearRampToValueAtTime(60, actx.currentTime + 0.35);
-      gain.gain.setValueAtTime(0.4, actx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.35);
-      osc.start(); osc.stop(actx.currentTime + 0.35);
-    }
+    // --- ★セクシーお姉さん4種類のポーズSVG定義 ---
+    const sexyLadyPoses = [
+      // Pose 1: ピンクビキニ＆ウインクピース
+      {
+        caption: "「1連目おめでとっ♡ まだまだこれからよ♪」",
+        svg: `<svg viewBox="0 0 180 180" width="100%" height="100%">
+          <!-- 艶やかなロングヘア背面 -->
+          <path d="M 40,45 Q 20,110 30,170 L 150,170 Q 160,110 140,45 Z" fill="#3e1e24"/>
+          <!-- くびれボディ＆谷間 -->
+          <path d="M 58,95 Q 45,130 50,175 L 130,175 Q 135,130 122,95 Z" fill="#ffe0bd"/>
+          <!-- 豊かなバスト立体表現 -->
+          <circle cx="73" cy="128" r="22" fill="#ffd6a8" stroke="#e0a878" stroke-width="1.5"/>
+          <circle cx="107" cy="128" r="22" fill="#ffd6a8" stroke="#e0a878" stroke-width="1.5"/>
+          <path d="M 88,118 Q 90,132 90,145" fill="none" stroke="#d49566" stroke-width="2.2" stroke-linecap="round"/>
+          <!-- ピンクビキニ水着 -->
+          <path d="M 52,126 Q 73,105 88,132 Q 72,152 52,126 Z" fill="#ff007f" stroke="#fff" stroke-width="1.5"/>
+          <path d="M 128,126 Q 107,105 92,132 Q 108,152 128,126 Z" fill="#ff007f" stroke="#fff" stroke-width="1.5"/>
+          <path d="M 65,95 L 70,115 M 115,95 L 110,115" stroke="#ff007f" stroke-width="3"/>
+          <!-- 小顔＆ウインク表情 -->
+          <path d="M 62,42 Q 60,78 90,88 Q 120,78 118,42 Z" fill="#ffe4c4"/>
+          <!-- ぱっちり瞳＆ウインク -->
+          <ellipse cx="76" cy="62" rx="5.5" ry="6.5" fill="#2b1216"/>
+          <circle cx="74" cy="59" r="2" fill="#fff"/>
+          <path d="M 97,62 Q 104,56 110,62" fill="none" stroke="#2b1216" stroke-width="2.8" stroke-linecap="round"/>
+          <!-- チーク＆ぷるぷるリップ -->
+          <ellipse cx="69" cy="70" rx="6" ry="3" fill="#ff6699" opacity="0.55"/>
+          <ellipse cx="111" cy="70" rx="6" ry="3" fill="#ff6699" opacity="0.55"/>
+          <path d="M 84,74 Q 90,82 96,74 Q 90,77 84,74 Z" fill="#ff1744"/>
+          <!-- 前髪 -->
+          <path d="M 55,48 Q 70,22 110,28 Q 130,36 125,55 Q 105,38 90,52 Q 72,38 55,48 Z" fill="#52272f"/>
+          <!-- ピースサインの手 -->
+          <circle cx="142" cy="82" r="10" fill="#ffe0bd"/>
+          <path d="M 138,74 L 134,56 M 145,74 L 151,57" stroke="#ffe0bd" stroke-width="5" stroke-linecap="round"/>
+        </svg>`
+      },
+      // Pose 2: セクシー黒バニーガール（前屈み谷間強調ポーズ）
+      {
+        caption: "「すごぉい♡ 私のバニー姿で癒してあげる…♪」",
+        svg: `<svg viewBox="0 0 180 180" width="100%" height="100%">
+          <!-- 黒うさ耳カチューシャ -->
+          <ellipse cx="72" cy="18" rx="8" ry="22" transform="rotate(-12 72 18)" fill="#1a1a1a" stroke="#ff80ab" stroke-width="1.5"/>
+          <ellipse cx="108" cy="18" rx="8" ry="22" transform="rotate(12 108 18)" fill="#1a1a1a" stroke="#ff80ab" stroke-width="1.5"/>
+          <!-- 金髪ウェーブヘア -->
+          <path d="M 42,50 Q 25,115 35,172 L 145,172 Q 155,115 138,50 Z" fill="#f5c542"/>
+          <!-- 前屈みデコルテ＆大胆なバスト -->
+          <path d="M 50,98 Q 42,135 48,175 L 132,175 Q 138,135 130,98 Z" fill="#ffe2c0"/>
+          <circle cx="72" cy="126" r="24" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <circle cx="108" cy="126" r="24" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <path d="M 88,112 Q 90,128 90,146" fill="none" stroke="#c98859" stroke-width="2.8" stroke-linecap="round"/>
+          <!-- 黒エナメルバニースーツ＆赤蝶ネクタイ -->
+          <path d="M 48,125 Q 72,108 90,132 Q 108,108 132,125 L 126,175 L 54,175 Z" fill="#181820"/>
+          <polygon points="80,94 90,99 80,104" fill="#ff1744"/>
+          <polygon points="100,94 90,99 100,104" fill="#ff1744"/>
+          <!-- 顔＆とろける流し目 -->
+          <path d="M 62,45 Q 60,80 90,90 Q 120,80 118,45 Z" fill="#ffe6c9"/>
+          <path d="M 69,62 Q 77,57 83,62" fill="none" stroke="#331919" stroke-width="2.5"/>
+          <ellipse cx="76" cy="64" rx="4.5" ry="5" fill="#6b3fa0"/>
+          <path d="M 97,62 Q 103,57 111,62" fill="none" stroke="#331919" stroke-width="2.5"/>
+          <ellipse cx="104" cy="64" rx="4.5" ry="5" fill="#6b3fa0"/>
+          <ellipse cx="68" cy="72" rx="7" ry="3.5" fill="#ff4081" opacity="0.6"/>
+          <ellipse cx="112" cy="72" rx="7" ry="3.5" fill="#ff4081" opacity="0.6"/>
+          <ellipse cx="90" cy="77" rx="5" ry="4" fill="#ff1744"/>
+          <path d="M 55,50 Q 75,28 115,34 Q 128,45 122,58 Q 100,42 90,54 Q 75,42 55,50 Z" fill="#ffda66"/>
+        </svg>`
+      },
+      // Pose 3: 紫ランジェリー風ビキニ＆誘惑ポーズ
+      {
+        caption: "「もう止まらないわね…♡ 隣に座ってもいい？」",
+        svg: `<svg viewBox="0 0 180 180" width="100%" height="100%">
+          <path d="M 35,45 Q 15,120 28,175 L 152,175 Q 165,120 145,45 Z" fill="#1f152e"/>
+          <!-- 両腕を上げて脇＆バストを強調するポーズ -->
+          <path d="M 55,100 L 32,55 L 52,48 L 68,95 Z" fill="#ffe0bd"/>
+          <path d="M 125,100 L 148,55 L 128,48 L 112,95 Z" fill="#ffe0bd"/>
+          <path d="M 56,96 Q 46,135 50,175 L 130,175 Q 134,135 124,96 Z" fill="#ffe0bd"/>
+          <circle cx="72" cy="124" r="23" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <circle cx="108" cy="124" r="23" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <path d="M 88,112 Q 90,126 90,142" fill="none" stroke="#c98859" stroke-width="2.5"/>
+          <!-- セクシー紫レースビキニ -->
+          <path d="M 50,122 Q 72,102 89,130 Q 72,150 50,122 Z" fill="#9c27b0" stroke="#f3e5f5" stroke-width="1.5"/>
+          <path d="M 130,122 Q 108,102 91,130 Q 108,150 130,122 Z" fill="#9c27b0" stroke="#f3e5f5" stroke-width="1.5"/>
+          <!-- 顔 -->
+          <path d="M 62,42 Q 60,78 90,88 Q 120,78 118,42 Z" fill="#ffe4c4"/>
+          <ellipse cx="76" cy="62" rx="5" ry="6" fill="#e91e63"/>
+          <circle cx="74" cy="60" r="2" fill="#fff"/>
+          <ellipse cx="104" cy="62" rx="5" ry="6" fill="#e91e63"/>
+          <circle cx="102" cy="60" r="2" fill="#fff"/>
+          <ellipse cx="68" cy="70" rx="7" ry="3.5" fill="#ff4081" opacity="0.65"/>
+          <ellipse cx="112" cy="70" rx="7" ry="3.5" fill="#ff4081" opacity="0.65"/>
+          <path d="M 83,75 Q 90,83 97,75" fill="none" stroke="#d81b60" stroke-width="3" stroke-linecap="round"/>
+          <path d="M 54,48 Q 90,24 126,48 Q 105,36 90,50 Q 75,36 54,48 Z" fill="#2e1c44"/>
+        </svg>`
+      },
+      // Pose 4: 黄金ゴージャスビキニ＆投げキッス（大量連チャン限定）
+      {
+        caption: "「神引きすぎるっ♡♡ 今夜は帰りたくないな…♪」",
+        svg: `<svg viewBox="0 0 180 180" width="100%" height="100%">
+          <!-- 後光オーラ -->
+          <circle cx="90" cy="95" r="78" fill="none" stroke="#ffd700" stroke-width="3" stroke-dasharray="8 6"/>
+          <path d="M 38,42 Q 18,118 28,175 L 152,175 Q 162,118 142,42 Z" fill="#8c2d4b"/>
+          <path d="M 54,96 Q 44,135 48,175 L 132,175 Q 136,135 126,96 Z" fill="#ffe0bd"/>
+          <circle cx="71" cy="125" r="25" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <circle cx="109" cy="125" r="25" fill="#ffd6a8" stroke="#d99f70" stroke-width="1.5"/>
+          <path d="M 88,110 Q 90,128 90,145" fill="none" stroke="#c98859" stroke-width="3"/>
+          <!-- 極小ゴールドマイクロビキニ -->
+          <path d="M 48,125 Q 72,104 89,132 Q 70,152 48,125 Z" fill="#ffd700" stroke="#fff" stroke-width="1.5"/>
+          <path d="M 132,125 Q 108,104 91,132 Q 110,152 132,125 Z" fill="#ffd700" stroke="#fff" stroke-width="1.5"/>
+          <!-- 顔＆投げキッスハート -->
+          <path d="M 62,42 Q 60,78 90,88 Q 120,78 118,42 Z" fill="#ffe4c4"/>
+          <path d="M 68,61 Q 76,55 83,61" fill="none" stroke="#2b1216" stroke-width="2.8" stroke-linecap="round"/>
+          <ellipse cx="104" cy="62" rx="5.5" ry="6.5" fill="#2b1216"/>
+          <circle cx="102" cy="59" r="2" fill="#fff"/>
+          <ellipse cx="68" cy="70" rx="8" ry="4" fill="#ff1744" opacity="0.65"/>
+          <ellipse cx="112" cy="70" rx="8" ry="4" fill="#ff1744" opacity="0.65"/>
+          <!-- チュッとした唇と飛び出すハート -->
+          <circle cx="90" cy="75" r="4.5" fill="#ff0055"/>
+          <text x="122" y="72" font-size="24" fill="#ff007f">♥</text>
+          <text x="28" y="65" font-size="20" fill="#ffea00">★</text>
+          <path d="M 54,48 Q 90,22 126,48 Q 105,36 90,50 Q 75,36 54,48 Z" fill="#ad3b5e"/>
+        </svg>`
+      }
+    ];
 
-    // --- ゲームステート管理 ---
-    let retainers = 0; // 保留玉（最大4）
+    // --- ★羨ましがるギャラリー（野次馬）のセリフリスト ---
+    const envyLines = [
+      { icon: "🧔🏻", text: "すげぇ連チャン…" },
+      { icon: "👱🏻‍♂️", text: "うらやましい！！" },
+      { icon: "👩🏻‍🦰", text: "あの人プロ！？♡" },
+      { icon: "👨🏻‍🦳", text: "ワシにも代わって…" },
+      { icon: "🕶️", text: "万発確定やん！" },
+      { icon: "🧑🏻‍🦱", text: "引き強すぎだろw" },
+      { icon: "💃🏻", text: "ドル箱ヤバっ♡" },
+      { icon: "🤴🏻", text: "本日のホール覇者！" }
+    ];
+
+    // --- ゲームステータス ---
+    let retainers = 0;
     let isSpinning = false;
-    let isReach = false;
-    let currentGimmick = null; // 'mash', 'timing', 'hold'
+    let currentGimmick = null;
     let inRushMode = false;
+    let streak = 0;       // 連チャン数
+    let totalBalls = 0;   // 総獲得出玉
 
-    // UI要素
+    // DOM要素
     const reelL = document.getElementById('reel-left');
     const reelC = document.getElementById('reel-center');
     const reelR = document.getElementById('reel-right');
@@ -395,8 +642,19 @@
     const frame = document.getElementById('machine-frame');
     const gaugeBar = document.getElementById('gauge-bar');
     const gaugeFill = document.getElementById('gauge-fill');
+    const pendulumZone = document.getElementById('pendulum-zone');
+    const pendulumNeedle = document.getElementById('pendulum-needle');
     const timingBox = document.getElementById('timing-ring-box');
     const shrinkRing = document.getElementById('shrinking-ring');
+    const choiceBox = document.getElementById('choice-box');
+    const scratchOverlay = document.getElementById('scratch-overlay');
+    const ladyStage = document.getElementById('lady-stage');
+    const ladyHolder = document.getElementById('lady-svg-holder');
+    const ladyCaption = document.getElementById('lady-caption');
+    const crowdArea = document.getElementById('crowd-area');
+    const streakEl = document.getElementById('streak-count');
+    const ballsEl = document.getElementById('balls-count');
+    const hakosEl = document.getElementById('hakos');
     const rushStatus = document.getElementById('rush-status');
 
     function updateRetainers() {
@@ -405,29 +663,44 @@
       }
     }
 
-    // 「玉を打つ」ボタン
+    // ギャラリー（人だかり）を更新する関数
+    function updateCrowd() {
+      crowdArea.innerHTML = '';
+      const count = Math.min(streak, envyLines.length);
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement('div');
+        div.className = 'spectator';
+        div.innerHTML = `
+          <div class="speech-bubble">${envyLines[i].text}</div>
+          <div class="person-icon">${envyLines[i].icon}</div>
+        `;
+        crowdArea.appendChild(div);
+      }
+    }
+
     shootBtn.addEventListener('pointerdown', () => {
       initAudio();
       if (retainers < 4) {
         retainers++;
-        playStartSound();
+        playTone(660, 880, 0.2, 'sine', 0.3);
         updateRetainers();
         if (!isSpinning) processNextSpin();
       }
     });
 
-    // 保留消化 & スピン開始
     function processNextSpin() {
       if (retainers <= 0) return;
       retainers--;
       updateRetainers();
       isSpinning = true;
-      resetReelStyles();
+      ladyStage.style.display = 'none';
+      [reelL, reelC, reelR].forEach(r => r.classList.remove('seven'));
+      pushBtn.classList.remove('gold-glow');
 
-      instEl.textContent = inRushMode ? '★RUSH中：激速変動★' : '変動中…';
+      instEl.textContent = inRushMode ? `★ハーレムRUSH (${streak}連中)★` : '変動中…';
 
-      // テンパイ発生率：通常時40%、RUSH中80%
-      const willReach = Math.random() < (inRushMode ? 0.85 : 0.45);
+      // RUSH中は85%でリーチ、通常時は55%でリーチ
+      const willReach = Math.random() < (inRushMode ? 0.88 : 0.55);
 
       let spins = 0;
       const spinInterval = setInterval(() => {
@@ -436,187 +709,235 @@
         reelR.textContent = Math.floor(Math.random() * 9) + 1;
         spins++;
 
-        if (spins > 14) {
+        if (spins > 12) {
           clearInterval(spinInterval);
           if (willReach) {
             startReachPhase();
           } else {
-            // 普通のハズレ停止
-            reelL.textContent = 3; reelC.textContent = 6; reelR.textContent = 8;
-            instEl.textContent = 'ハズレ… 次を打て！';
+            reelL.textContent = 2; reelC.textContent = 5; reelR.textContent = 8;
+            instEl.textContent = 'ハズレ… 次の玉を打て！';
             isSpinning = false;
-            setTimeout(processNextSpin, 400);
+            setTimeout(processNextSpin, 350);
           }
         }
-      }, 70);
+      }, 65);
     }
 
-    function resetReelStyles() {
-      [reelL, reelC, reelR].forEach(r => {
-        r.classList.remove('seven');
-        r.style.color = '#fff';
-      });
-      pushBtn.classList.remove('gold-glow');
-    }
-
-    // --- 激アツリーチ演出 ---
     function startReachPhase() {
-      isReach = true;
-      playReachSound();
+      playTone(300, 750, 0.3, 'sawtooth', 0.45);
       frame.classList.add('shake');
-      setTimeout(() => frame.classList.remove('shake'), 400);
+      setTimeout(() => frame.classList.remove('shake'), 350);
 
-      // 左と右を 7 でテンパイ固定！
       reelL.textContent = 7; reelL.classList.add('seven');
       reelR.textContent = 7; reelR.classList.add('seven');
-
-      instEl.innerHTML = '<span style="color:#ff0055">★激アツ 7テンパイ★</span>';
       pushBtn.classList.add('gold-glow');
 
-      // 中図柄は低速スロー回転
-      const slowSpin = setInterval(() => {
-        reelC.textContent = Math.floor(Math.random() * 9) + 1;
-      }, 120);
+      // ★全6種類のミニゲームからランダム選出！
+      const gimmicks = ['mash', 'timing', 'hold', 'pendulum', 'scratch', 'choice'];
+      const chosen = gimmicks[Math.floor(Math.random() * gimmicks.length)];
 
-      // 3種類の介入操作からランダム選出
-      const modes = ['mash', 'timing', 'hold'];
-      const chosen = modes[Math.floor(Math.random() * modes.length)];
-
-      setTimeout(() => {
-        clearInterval(slowSpin);
-        triggerPlayerIntervention(chosen);
-      }, 1200);
+      setTimeout(() => triggerGimmick(chosen), 800);
     }
 
-    // --- プレイヤーガチ介入ギミック ---
+    // --- 6種類の操作介入ロジック ---
     let mashCount = 0;
-    let timingAnim = null;
-    let holdStartTime = 0;
-    let holdTimeout = null;
+    let activeTimer = null;
 
-    function triggerPlayerIntervention(type) {
+    function triggerGimmick(type) {
       currentGimmick = type;
 
       if (type === 'mash') {
-        // ① 連打ギミック
-        instEl.textContent = 'ボタンを猛連打して7を押し込め！';
+        // ① 連打
+        instEl.textContent = '【連打】3秒間で12回PUSHを叩け！';
         gaugeBar.style.display = 'block';
         gaugeFill.style.width = '0%';
         mashCount = 0;
-
-        let timeLeft = 30; // 3.0秒
-        const timer = setInterval(() => {
-          timeLeft--;
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            judgeOutcome(mashCount >= 14); // 14回以上連打で成功
-          }
-        }, 100);
+        activeTimer = setTimeout(() => judgeOutcome(mashCount >= 12), 3000);
 
       } else if (type === 'timing') {
-        // ② 一撃ジャスト押しギミック
-        instEl.textContent = '赤枠に重なる瞬間に叩け！';
+        // ② 縮小リング目押し
+        instEl.textContent = '【一撃】リングが赤枠に重なる瞬間にPUSH！';
         timingBox.style.display = 'flex';
-        let scale = 1.8;
-        let isPressed = false;
-
-        timingAnim = setInterval(() => {
+        let scale = 1.85;
+        let pressed = false;
+        activeTimer = setInterval(() => {
           scale -= 0.035;
           shrinkRing.style.transform = `scale(${scale})`;
-          if (scale <= 0.6) {
-            clearInterval(timingAnim);
-            if (!isPressed) judgeOutcome(false); // 押し遅れ
+          if (scale <= 0.55) {
+            clearInterval(activeTimer);
+            if (!pressed) judgeOutcome(false);
           }
         }, 30);
-
         pushBtn.onpointerdown = () => {
-          if (currentGimmick !== 'timing' || isPressed) return;
-          isPressed = true;
-          clearInterval(timingAnim);
-          playThumpSound();
-          // scaleが 0.95〜1.15 の範囲ならジャスト成功
-          judgeOutcome(scale >= 0.88 && scale <= 1.22);
+          if (pressed) return;
+          pressed = true;
+          clearInterval(activeTimer);
+          playTone(150, 40, 0.2, 'triangle', 0.7);
+          judgeOutcome(scale >= 0.85 && scale <= 1.25);
         };
 
       } else if (type === 'hold') {
-        // ③ 長押しチャージギミック
-        instEl.textContent = '長押しチャージ！2.5秒ジャストで離せ！';
+        // ③ 長押しチャージ
+        instEl.textContent = '【長押し】ゲージ満タン付近で指を離せ！';
         gaugeBar.style.display = 'block';
         gaugeFill.style.width = '0%';
-        gaugeFill.style.background = 'linear-gradient(90deg, #ffeb3b, #f44336)';
-
+        let pct = 0;
+        let holding = false;
         pushBtn.onpointerdown = () => {
-          if (currentGimmick !== 'hold') return;
-          holdStartTime = Date.now();
-          gaugeFill.style.transition = 'width 2.5s linear';
-          gaugeFill.style.width = '100%';
+          if (holding) return;
+          holding = true;
+          activeTimer = setInterval(() => {
+            pct += 4;
+            gaugeFill.style.width = `${Math.min(100, pct)}%`;
+            if (pct >= 115) { // 溜めすぎ爆発
+              clearInterval(activeTimer);
+              judgeOutcome(false);
+            }
+          }, 60);
+        };
+        pushBtn.onpointerup = () => {
+          if (!holding) return;
+          clearInterval(activeTimer);
+          playTone(150, 40, 0.2, 'triangle', 0.7);
+          judgeOutcome(pct >= 75 && pct <= 105);
         };
 
-        pushBtn.onpointerup = () => {
-          if (currentGimmick !== 'hold' || holdStartTime === 0) return;
-          const elapsed = (Date.now() - holdStartTime) / 1000;
-          holdStartTime = 0;
-          playThumpSound();
-          // 2.2秒〜2.8秒のジャスト範囲で離せたら成功
-          judgeOutcome(elapsed >= 2.1 && elapsed <= 2.8);
+      } else if (type === 'pendulum') {
+        // ④ 往復ペンデュラム目押し
+        instEl.textContent = '【目押し】針が中央の赤ゾーンに来たらPUSH！';
+        pendulumZone.style.display = 'block';
+        let pos = 0;
+        let dir = 4.5;
+        let stopped = false;
+        activeTimer = setInterval(() => {
+          pos += dir;
+          if (pos >= 94 || pos <= 0) dir *= -1;
+          pendulumNeedle.style.left = `${pos}%`;
+        }, 20);
+        pushBtn.onpointerdown = () => {
+          if (stopped) return;
+          stopped = true;
+          clearInterval(activeTimer);
+          playTone(150, 40, 0.2, 'triangle', 0.7);
+          judgeOutcome(pos >= 34 && pos <= 60);
         };
+
+      } else if (type === 'scratch') {
+        // ⑤ 画面スワイプこすり
+        instEl.textContent = '【こすれ】液晶の曇りを指でスワイプして消せ！';
+        scratchOverlay.style.display = 'flex';
+        scratchOverlay.style.opacity = '1';
+        let rubScore = 0;
+        scratchOverlay.onpointermove = () => {
+          rubScore++;
+          scratchOverlay.style.opacity = `${Math.max(0, 1 - rubScore / 28)}`;
+          if (rubScore >= 28) {
+            scratchOverlay.onpointermove = null;
+            clearTimeout(activeTimer);
+            judgeOutcome(true);
+          }
+        };
+        // スマホタップ連打＆スワイプ両対応
+        scratchOverlay.onpointerdown = () => {
+          rubScore += 5;
+          scratchOverlay.style.opacity = `${Math.max(0, 1 - rubScore / 28)}`;
+          if (rubScore >= 28) {
+            clearTimeout(activeTimer);
+            judgeOutcome(true);
+          }
+        };
+        activeTimer = setTimeout(() => judgeOutcome(rubScore >= 28), 3500);
+
+      } else if (type === 'choice') {
+        // ⑥ 運命の2択
+        instEl.textContent = '【2択】7が入っている箱を直感で選べ！';
+        choiceBox.style.display = 'flex';
+        const pick = () => {
+          playTone(150, 40, 0.2, 'triangle', 0.7);
+          // 65%の確率で当たり！
+          judgeOutcome(Math.random() < 0.65);
+        };
+        document.getElementById('choice-left').onclick = pick;
+        document.getElementById('choice-right').onclick = pick;
       }
     }
 
-    // PUSHボタンの共通タップ処理（連打用）
+    // 連打用の共通PUSH処理
     pushBtn.addEventListener('pointerdown', () => {
       initAudio();
       if (currentGimmick === 'mash') {
         mashCount++;
-        playThumpSound();
-        const pct = Math.min(100, (mashCount / 14) * 100);
-        gaugeFill.style.width = `${pct}%`;
+        playTone(140, 40, 0.15, 'triangle', 0.65);
+        gaugeFill.style.width = `${Math.min(100, (mashCount / 12) * 100)}%`;
         frame.classList.add('shake');
-        setTimeout(() => frame.classList.remove('shake'), 80);
+        setTimeout(() => frame.classList.remove('shake'), 70);
       }
     });
 
-    // --- 勝敗判定（脳汁FEVER or 絶望ハズレ） ---
+    // --- 当落判定＆ご褒美演出 ---
     function judgeOutcome(isWin) {
-      // ギミックUIリセット
+      clearTimeout(activeTimer);
+      clearInterval(activeTimer);
       gaugeBar.style.display = 'none';
       timingBox.style.display = 'none';
-      gaugeFill.style.transition = 'width 0.05s linear';
+      pendulumZone.style.display = 'none';
+      choiceBox.style.display = 'none';
+      scratchOverlay.style.display = 'none';
       pushBtn.onpointerdown = null;
       pushBtn.onpointerup = null;
       currentGimmick = null;
 
       if (isWin) {
-        // ★FEVER確定！
+        // ★大当たり！連チャン＆出玉加算
+        streak++;
+        totalBalls += 1500;
+        inRushMode = true;
+
+        streakEl.textContent = streak;
+        ballsEl.textContent = totalBalls.toLocaleString();
+        hakosEl.textContent = '🟨'.repeat(Math.min(8, streak));
+        rushStatus.textContent = `MODE: ★HAREM RUSH (${streak}連)★`;
+        rushStatus.style.color = '#00ffcc';
+
         playFeverSound();
         reelC.textContent = 7;
         reelC.classList.add('seven');
         flashOverlay.style.display = 'block';
-        instEl.innerHTML = '<span style="color:#00ffcc; font-size:1.6rem;">超FEVER RUSH突入！！</span>';
-        inRushMode = true;
-        rushStatus.textContent = 'MODE: ★FEVER RUSH★';
-        rushStatus.style.color = '#00ffcc';
+
+        // 連チャン数に応じてお姉さんのポーズがどんどん過激・豪華に変化！
+        const poseIdx = Math.min(sexyLadyPoses.length - 1, streak - 1);
+        const pose = sexyLadyPoses[poseIdx];
+        ladyHolder.innerHTML = pose.svg;
+        ladyCaption.textContent = pose.caption;
+        ladyStage.style.display = 'flex';
+
+        instEl.innerHTML = `<span style="color:#ff80ab; font-size:1.3rem;">★BIG BONUS +1500発★</span>`;
+
+        // 周囲に羨ましがるギャラリーを追加！
+        updateCrowd();
 
         setTimeout(() => {
           flashOverlay.style.display = 'none';
           isSpinning = false;
-          // RUSH継続：即座に次のスピンへ！
-          setTimeout(processNextSpin, 800);
-        }, 2200);
+          if (retainers > 0) setTimeout(processNextSpin, 600);
+        }, 2800);
 
       } else {
-        // ハズレ（8で惜しくも停止）
-        playFailSound();
+        // ハズレ… 連チャン終了でギャラリーも散る
+        playTone(180, 55, 0.35, 'sawtooth', 0.45);
         reelC.textContent = 8;
-        instEl.textContent = '無念… 介入失敗';
+        instEl.textContent = streak > 0 ? `無念… ${streak}連チャンで終了` : '無念… 介入失敗';
         inRushMode = false;
+        streak = 0;
+        streakEl.textContent = 0;
         rushStatus.textContent = 'MODE: 通常時';
         rushStatus.style.color = '#ffd700';
+        updateCrowd(); // 観客が去っていく
 
         setTimeout(() => {
           isSpinning = false;
-          setTimeout(processNextSpin, 500);
-        }, 1200);
+          if (retainers > 0) setTimeout(processNextSpin, 500);
+        }, 1300);
       }
     }
   </script>
