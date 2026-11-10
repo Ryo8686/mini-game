@@ -27,22 +27,23 @@
   letter-spacing: 1px;
 }
     * { box-sizing: border-box; touch-action: manipulation; }
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      background: radial-gradient(circle at center, #261132 0%, #07030a 100%);
-      color: #fff;
-      font-family: 'Arial Black', 'Hiragino Kaku Gothic ProN', sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
-      overflow: hidden;
-      padding: 8px 0;
-    }
-
+body {
+  margin: 0;
+  min-height: 100vh;
+  height: auto;               /* 100vh から auto に変更 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* space-between から変更 */
+  align-items: center;
+  background: radial-gradient(circle at center, #261132 0%, #07030a 100%);
+  color: #fff;
+  font-family: 'Arial Black', 'Hiragino Kaku Gothic ProN', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-y: auto;           /* hidden から auto に変更（縦スクロール許可） */
+  padding: 12px 0 40px 0;
+  gap: 12px;
+}
     /* 上部データカウンター（連チャン数・出玉・ドル箱） */
     #data-counter {
       width: 94%;
@@ -67,23 +68,23 @@
     #hakos { font-size: 0.9rem; letter-spacing: -2px; max-width: 110px; overflow: hidden; white-space: nowrap; }
 
     /* 筐体フレーム枠 */
-    #machine-frame {
-      width: 94%;
-      max-width: 390px;
-      height: 74vh;
-      border: 5px solid #d4af37;
-      border-radius: 24px;
-      background: linear-gradient(180deg, #1b0c2e 0%, #0b0412 100%);
-      box-shadow: 0 0 25px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      padding: 10px;
-    }
-
+#machine-frame {
+  width: 94%;
+  max-width: 390px;
+  height: 620px;              /* 74vh などの可変指定をやめて固定ピクセルにする */
+  flex-shrink: 0;             /* 広告に押されて縮まないようにする */
+  border: 5px solid #d4af37;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #1b0c2e 0%, #0b0412 100%);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  padding: 10px;
+}
     /* ステータス & 保留 */
     #top-panel {
       width: 100%;
